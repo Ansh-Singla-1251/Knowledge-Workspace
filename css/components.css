@@ -1,0 +1,342 @@
+/* Brand */
+
+.brand {
+    padding: 0 12px;
+    margin-bottom: 32px;
+}
+
+.brand h2 {
+    font-size: 20px;
+}
+
+.brand span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* Navigation */
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-item {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    background: transparent;
+    color: #6b7280;
+
+    border-radius: 8px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    text-align: left;
+}
+
+.nav-item:hover {
+    background: #f7f8fa;
+    color: #17181a;
+}
+
+.nav-item.active {
+    background: #eef2ff;
+    color: #6366f1;
+}
+
+
+/* Workspace */
+
+.sidebar-section {
+    margin-top: 32px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 12px 10px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: #9ca3af;
+}
+
+.section-header button {
+    background: transparent;
+    color: #6b7280;
+    font-size: 18px;
+}
+
+
+/* Search */
+
+.search-container {
+    width: 400px;
+}
+
+.search-container input {
+    width: 100%;
+
+    padding: 10px 14px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    outline: none;
+}
+
+.search-container input:focus {
+    border-color: #6366f1;
+}
+
+
+/* Topbar */
+
+.topbar-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.topbar-actions button {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+    background: #f7f8fa;
+}
+
+
+/* Dashboard Header */
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 40px;
+}
+
+.eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+
+    color: #6366f1;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 8px;
+}
+
+.dashboard-header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: #6b7280;
+}
+
+
+/* Buttons */
+
+.primary-btn {
+    background: #6366f1;
+    color: white;
+
+    padding: 11px 18px;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+}
+
+.primary-btn:hover {
+    background: #4f46e5;
+}
+
+.text-btn {
+    background: transparent;
+    color: #6366f1;
+}
+
+
+/* Quick Actions */
+
+.quick-actions {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 48px;
+}
+
+.quick-card {
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    text-align: left;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    transition: 0.2s;
+}
+
+.quick-card:hover {
+    transform: translateY(-2px);
+    border-color: #6366f1;
+}
+
+.quick-card span {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.quick-card small {
+    color: #6b7280;
+}
+
+
+/* Section */
+
+.content-section {
+    margin-top: 20px;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.section-title h2 {
+    font-size: 20px;
+}
+
+.section-title p {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+
+/* Empty State */
+
+.empty-state {
+    grid-column: 1 / -1;
+
+    background: #ffffff;
+
+    border: 1px dashed #e5e7eb;
+
+    border-radius: 16px;
+
+    padding: 20px 20px;
+
+    text-align: center;
+}
+
+.empty-icon {
+    font-size: 42px;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    max-width: 400px;
+    margin: 0 auto 20px;
+
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+
+/* Document Grid */
+
+.document-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+}
+
+.workspace-item {
+    width: 100%;
+
+    padding: 9px 12px;
+
+    background: transparent;
+    color: #6b7280;
+
+    border-radius: 8px;
+
+    text-align: left;
+
+    margin-bottom: 3px;
+}
+
+.workspace-item:hover {
+    background: #f7f8fa;
+    color: #17181a;
+}
+.workspace-item.active {
+    background: #eef2ff;
+    color: #6366f1;
+    font-weight: 600;
+}
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .document-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .search-container {
+        width: 250px;
+    }
+}
+
+
+@media (max-width: 863px) {
+    
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .document-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-container {
+        width: 180px;
+    }
+}

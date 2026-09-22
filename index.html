@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Knowledge Workspace</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">   
+</head>
+
+<body>
+
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>Knowledge</h2>
+                <span>Workspace</span>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active">
+                    <span><i class="fa-solid fa-house"></i></span>
+                    Dashboard
+                </button>
+
+                <button class="nav-item">
+                    <span>📄</span>
+                    Documents
+                </button>
+
+                <button class="nav-item">
+                    <span>🧠</span>
+                    Mind Maps
+                </button>
+
+                <button class="nav-item">
+                    <span>⭐</span>
+                    Favorites
+                </button>
+
+                <button class="nav-item">
+                    <span><i class="fa-solid fa-trash"></i></span>
+                    Trash
+                </button>
+
+            </nav>
+
+            <div class="sidebar-section">
+
+                <div class="section-header">
+                    <span>WORKSPACES</span>
+                    <button id="addWorkspaceBtn">+</button>
+                </div>
+
+                <div id="workspaceList">
+                    <!-- Workspaces will be added here using JavaScript -->
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Topbar -->
+            <header class="topbar">
+
+                <div class="search-container">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search your knowledge..."
+                    >
+                </div>
+
+                <div class="topbar-actions">
+                    <button id="themeToggle"><i class="fa-solid fa-moon"></i></button>
+                    <button id="profileBtn"><i class="fa-solid fa-user"></i></button>
+                </div>
+
+            </header>
+
+
+            <!-- Dashboard -->
+            <section class="dashboard">
+
+                <div class="dashboard-header">
+
+                    <div>
+                        <p class="eyebrow">YOUR WORKSPACE</p>
+                        <h1>Good morning, Ansh.</h1>
+                        <p class="subtitle">
+                            Organize your ideas. Connect your knowledge.
+                        </p>
+                    </div>
+
+                    <button id="createDocumentBtn" class="primary-btn">
+                        <span>+</span> New Document
+                    </button>
+
+                </div>
+
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+
+                    <button class="quick-card">
+                        <span>📄</span>
+                        <strong>New Document</strong>
+                        <small>Start writing</small>
+                    </button>
+
+                    <button class="quick-card">
+                        <span>🧠</span>
+                        <strong>New Mind Map</strong>
+                        <small>Connect ideas</small>
+                    </button>
+
+                    <button class="quick-card">
+                        <span>📁</span>
+                        <strong>New Folder</strong>
+                        <small>Organize knowledge</small>
+                    </button>
+
+                </div>
+
+
+                <!-- Recent Documents -->
+                <section class="content-section">
+
+                    <div class="section-title">
+                        <div>
+                            <h2>Recent Documents</h2>
+                            <p>Your recently updated knowledge</p>
+                        </div>
+
+                        <button class="text-btn">
+                            View all →
+                        </button>
+                    </div>
+
+                    <div id="documentGrid" class="document-grid">
+
+                        <!-- Documents will be rendered here -->
+
+                        <div class="empty-state">
+
+                            <div class="empty-icon">📚</div>
+
+                            <h3>No documents yet</h3>
+
+                            <p>
+                                Create your first document and start building
+                                your knowledge workspace.
+                            </p>
+
+                            <button class="primary-btn">
+                                Create your first document
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script type="module" src="js/app.js"></script>
+
+</body>
+</html>
