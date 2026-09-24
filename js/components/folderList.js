@@ -1,14 +1,15 @@
 import state from "../state/store.js";
 
 import {
-    selectWorkspace,
-    updateWorkspace,
-    deleteWorkspace
-} from "../workspace/workspace.js";
+    selectFolder,
+    getWorkspaceFolders,
+    updateFolder,
+    deleteFolder
+} from "../folder/folder.js";
 
 import {
-    renderFolders
-} from "./folderList.js";
+    renderDocuments
+} from "./documentList.js";
 
 import {
     icons
@@ -25,57 +26,68 @@ import {
 } from "../utils/toast.js";
 
 
-export function renderWorkspaces(
-    workspaces
+export function renderFolders(
+    workspaceId
 ) {
 
-    const workspaceList =
+    const folderList =
         document.getElementById(
-            "workspaceList"
+            "folderList"
         );
 
-    workspaceList.innerHTML =
+    folderList.innerHTML =
         "";
 
 
-    workspaces.forEach(
-        workspace => {
+    if (!workspaceId) {
+        return;
+    }
 
-            const workspaceElement =
+
+    const folders =
+        getWorkspaceFolders(
+            workspaceId
+        );
+
+
+    folders.forEach(
+        folder => {
+
+            const folderElement =
                 document.createElement(
                     "div"
                 );
 
 
-            workspaceElement.classList.add(
-                "workspace-item"
+            folderElement.classList.add(
+                "folder-item"
             );
 
 
-            workspaceElement.dataset.id =
-                workspace.id;
+            folderElement.dataset.id =
+                folder.id;
 
 
-            workspaceElement.innerHTML = `
+            folderElement.innerHTML = `
 
-                <span class="workspace-icon">
-                    ${icons.workspace}
+                <span class="folder-icon">
+                    ${icons.folder}
                 </span>
 
-                <span class="workspace-name">
-                    ${workspace.name}
+                <span class="folder-name">
+                    ${folder.name}
                 </span>
 
                 <button
-                    class="rename-workspace-btn"
-                    title="Rename workspace"
+                    class="rename-folder-btn"
+                    title="Rename folder"
                 >
                     ${icons.edit}
                 </button>
 
                 <button
-                    class="delete-workspace-btn"
-                    title="Delete workspace"
+                    class="delete-folder-btn"
+                    title="Delete folder"
                 >
                     ${icons.trash}
                 </button>
@@ -84,31 +96,31 @@ export function renderWorkspaces(
 
 
             if (
-                workspace.id ===
-                state.currentWorkspaceId
+                folder.id ===
+                state.currentFolderId
             ) {
 
-                workspaceElement.classList.add(
+                folderElement.classList.add(
                     "active"
                 );
 
             }
 
 
-            workspaceElement.addEventListener(
+            folderElement.addEventListener(
                 "click",
                 () => {
 
-                    selectWorkspace(
-                        workspace.id
-                    );
-
-                    renderWorkspaces(
-                        state.workspaces
+                    selectFolder(
+                        folder.id
                     );
 
                     renderFolders(
                         state.currentWorkspaceId
+                    );
+
+                    renderDocuments(
+                        state.currentFolderId
                     );
 
                 }
@@ -116,8 +128,8 @@ export function renderWorkspaces(
 
 
             const renameButton =
-                workspaceElement.querySelector(
-                    ".rename-workspace-btn"
+                folderElement.querySelector(
+                    ".rename-folder-btn"
                 );
 
 
@@ -133,13 +145,13 @@ export function renderWorkspaces(
                         await requestInput({
 
                             titleText:
-                                "Rename workspace",
+                                "Rename folder",
 
                             descriptionText:
-                                "Give this workspace a name that makes sense to you.",
+                                "Choose a clear name for this folder.",
 
                             value:
-                                workspace.name,
+                                folder.name,
 
                             confirmText:
                                 "Save"
@@ -152,19 +164,19 @@ export function renderWorkspaces(
                     }
 
 
-                    updateWorkspace(
-                        workspace.id,
+                    updateFolder(
+                        folder.id,
                         newName
                     );
 
 
-                    renderWorkspaces(
-                        state.workspaces
+                    renderFolders(
+                        state.currentWorkspaceId
                     );
 
 
                     showToast(
-                        "Workspace renamed."
+                        "Folder renamed."
                     );
 
                 }
@@ -172,8 +184,8 @@ export function renderWorkspaces(
 
 
             const deleteButton =
-                workspaceElement.querySelector(
-                    ".delete-workspace-btn"
+                folderElement.querySelector(
+                    ".delete-folder-btn"
                 );
 
 
@@ -187,13 +199,13 @@ export function renderWorkspaces(
                         await requestConfirmation({
 
                             titleText:
-                                "Delete workspace?",
+                                "Delete folder?",
 
                             descriptionText:
-                                `Deleting "${workspace.name}" will also remove all folders and documents inside it.`,
+                                `Deleting "${folder.name}" will also remove all documents inside it.`,
 
                             confirmText:
-                                "Delete workspace"
+                                "Delete folder"
 
                         });
 
@@ -203,19 +215,14 @@ export function renderWorkspaces(
                     }
 
 
-                    deleteWorkspace(
-                        workspace.id
+                    deleteFolder(
+                        folder.id
                     );
 
 
-                    renderWorkspaces(
-                        state.workspaces
+                    renderFolders(
+                        state.currentWorkspaceId
                     );
-
-
-                    document.getElementById(
-                        "folderList"
-                    ).innerHTML = "";
 
 
                     document.getElementById(
@@ -224,15 +231,15 @@ export function renderWorkspaces(
 
 
                     showToast(
-                        "Workspace deleted."
+                        "Folder deleted."
                     );
 
                 }
             );
 
 
-            workspaceList.appendChild(
-                workspaceElement
+            folderList.appendChild(
+                folderElement
             );
 
         }

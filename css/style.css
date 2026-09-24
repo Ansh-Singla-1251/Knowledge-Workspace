@@ -4,19 +4,88 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    font-family: Arial;
-    background: #f7f8fa;
-    color: #17181a;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #F7F4ED;
+    color: #171717;
+    min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+    margin: 0;
+}
+
+h1,
+h2,
+h3 {
+    letter-spacing: -0.03em;
 }
 
 button,
-input {
+input,
+textarea {
     font: inherit;
 }
 
 button {
     border: none;
     cursor: pointer;
-    
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D4CEC2;
+    border-radius: 20px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #B8B0A3;
+}
+
+::selection {
+    background: #171717;
+    color: #F7F4ED;
+}
+
+button,
+a,
+input,
+.document-card,
+.workspace-item,
+.folder-item {
+    transition:
+        background-color 180ms ease,
+        color 180ms ease,
+        border-color 180ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        opacity 180ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
 }
