@@ -1,48 +1,21 @@
 import state from "../state/store.js";
 
-import {
-    selectDocument,
-    getFolderDocuments,
-    deleteDocument,
-    updateDocument
-} from "../document/document.js";
+import {selectDocument,getFolderDocuments,deleteDocument,updateDocument} from "../document/document.js";
 
-import {
-    icons
-} from "../utils/icons.js";
+import {icons} from "../utils/icons.js";
 
-import {
-    requestInput,
-    requestConfirmation,
-    resetModalInput
-} from "../utils/modal.js";
+import {requestInput,requestConfirmation,resetModalInput} from "../utils/modal.js";
 
-import {
-    showToast
-} from "../utils/toast.js";
+import {showToast} from "../utils/toast.js";
 
 
-export function renderDocuments(
-    folderId
-) {
+export function renderDocuments(folderId){
+    const documentGrid =document.getElementById("documentGrid");
+    documentGrid.innerHTML ="";
 
-    const documentGrid =
-        document.getElementById(
-            "documentGrid"
-        );
+    const documents =getFolderDocuments(folderId);
 
-    documentGrid.innerHTML =
-        "";
-
-
-    const documents =
-        getFolderDocuments(
-            folderId
-        );
-
-
-    if (documents.length === 0) {
-
+    if(documents.length === 0){
         documentGrid.innerHTML = `
 
             <div class="empty-state">
@@ -61,35 +34,35 @@ export function renderDocuments(
                     Create a document in this folder to start building
                     your knowledge workspace.
                 </p>
-
+                <button
+                id="emptyCreateDocumentBtn"
+                class="primary-btn"
+                type="button"
+                >
+                    Create your first document
+                </button>
             </div>
 
         `;
 
+    const createButton =document.getElementById("emptyCreateDocumentBtn");
+
+    createButton.addEventListener("click",() => {
+        const mainCreateButton =document.getElementById("createDocumentBtn");
+        if(mainCreateButton){
+            mainCreateButton.click();
+        }
+
+    });
         return;
     }
 
 
-    documents.forEach(
-        doc => {
-
-            const documentElement =
-                document.createElement(
-                    "div"
-                );
-
-
-            documentElement.classList.add(
-                "document-card"
-            );
-
-
-            documentElement.dataset.id =
-                doc.id;
-
-
+    documents.forEach(doc => {
+            const documentElement =document.createElement("div");
+            documentElement.classList.add("document-card");
+            documentElement.dataset.id =doc.id;
             documentElement.innerHTML = `
-
                 <div class="document-icon">
                     ${icons.document}
                 </div>
@@ -123,144 +96,50 @@ export function renderDocuments(
             `;
 
 
-            if (
-                doc.id ===
-                state.currentDocumentId
-            ) {
-
-                documentElement.classList.add(
-                    "active"
-                );
-
+            if(doc.id ===state.currentDocumentId){
+                documentElement.classList.add("active");
             }
 
-
-            documentElement.addEventListener(
-                "click",
-                () => {
-
-                    selectDocument(
-                        doc.id
-                    );
-
-                    renderDocuments(
-                        state.currentFolderId
-                    );
-
+            documentElement.addEventListener("click",event => {
+                if(event.target.closest(".rename-document-btn") || event.target.closest(".delete-document-btn")){
+                    return;
                 }
-            );
+
+                selectDocument(doc.id);
+
+                window.location.href =`editor.html?id=${encodeURIComponent(doc.id)}`;
+
+            });
+            const renameButton =documentElement.querySelector(".rename-document-btn");
 
 
-            const renameButton =
-                documentElement.querySelector(
-                    ".rename-document-btn"
-                );
-
-
-            renameButton.addEventListener(
-                "click",
-                async event => {
-
-                    event.stopPropagation();
-
-                    resetModalInput();
-
-                    const newTitle =
-                        await requestInput({
-
-                            titleText:
-                                "Rename document",
-
-                            descriptionText:
-                                "Give your document a clear, memorable title.",
-
-                            value:
-                                doc.title,
-
-                            confirmText:
-                                "Save"
-
-                        });
-
-
-                    if (!newTitle) {
-                        return;
-                    }
-
-
-                    updateDocument(
-                        doc.id,
-                        newTitle
-                    );
-
-
-                    renderDocuments(
-                        state.currentFolderId
-                    );
-
-
-                    showToast(
-                        "Document renamed."
-                    );
-
+            renameButton.addEventListener("click",async event => {
+                event.stopPropagation();
+                resetModalInput();
+                const newTitle =await requestInput({titleText:"Rename document",descriptionText:"Give your document a clear, memorable title.",value:doc.title,confirmText:"Save"});
+                if (!newTitle) {
+                    return;
                 }
-            );
+                updateDocument(doc.id,newTitle);
+                renderDocuments(state.currentFolderId);
+                showToast("Document renamed.");
+
+            });
 
 
-            const deleteButton =
-                documentElement.querySelector(
-                    ".delete-document-btn"
-                );
-
-
-            deleteButton.addEventListener(
-                "click",
-                async event => {
-
-                    event.stopPropagation();
-
-                    const confirmed =
-                        await requestConfirmation({
-
-                            titleText:
-                                "Delete document?",
-
-                            descriptionText:
-                                `"${doc.title}" will be removed from this folder.`,
-
-                            confirmText:
-                                "Delete document"
-
-                        });
-
-
-                    if (!confirmed) {
-                        return;
-                    }
-
-
-                    deleteDocument(
-                        doc.id
-                    );
-
-
-                    renderDocuments(
-                        state.currentFolderId
-                    );
-
-
-                    showToast(
-                        "Document deleted."
-                    );
-
+            const deleteButton =documentElement.querySelector(".delete-document-btn");
+            deleteButton.addEventListener("click",async event => {
+                event.stopPropagation();
+                const confirmed =await requestConfirmation({titleText:"Delete document?",descriptionText:`"${doc.title}" will be removed from this folder.`,confirmText:"Delete document"});
+                if(!confirmed) {
+                    return;
                 }
-            );
+                deleteDocument(doc.id);
+                renderDocuments(state.currentFolderId);
+                showToast("Document deleted.");
 
-
-            documentGrid.appendChild(
-                documentElement
-            );
-
+            });
+            documentGrid.appendChild(documentElement);
         }
     );
 

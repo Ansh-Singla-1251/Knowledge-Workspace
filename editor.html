@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Knowledge Workspace — Editor</title>
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/editor.css"
+    >
+</head>
+
+<body class="editor-page">
+
+    <header class="editor-topbar">
+
+        <a
+            href="index.html"
+            class="editor-back"
+        >
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+                <path d="M19 12H5"></path>
+                <path d="M12 19l-7-7 7-7"></path>
+            </svg>
+
+            <span>Workspace</span>
+        </a>
+
+
+        <div class="editor-status">
+
+            <span
+                class="save-indicator"
+                id="saveIndicator"
+            >
+                Saved
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <main class="editor-main">
+
+        <div class="editor-container">
+
+            <input
+                type="text"
+                id="documentTitle"
+                class="document-title"
+                placeholder="Untitled document"
+                autocomplete="off"
+            >
+
+
+            <div
+                id="editorBlocks"
+                class="editor-blocks"
+            >
+
+                <!-- Blocks will be inserted here -->
+
+            </div>
+
+
+            <div class="add-block-wrapper">
+
+                <button
+                    id="addBlockBtn"
+                    class="add-block-btn"
+                    type="button"
+                >
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M12 5v14"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+
+                    <span>Add block</span>
+
+                </button>
+
+
+                <div
+                    id="blockMenu"
+                    class="block-menu"
+                >
+
+                    <button
+                        type="button"
+                        data-block-type="paragraph"
+                    >
+                        <strong>¶</strong>
+                        <span>
+                            <b>Paragraph</b>
+                            <small>Write normal text</small>
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-block-type="heading"
+                    >
+                        <strong>H</strong>
+                        <span>
+                            <b>Heading</b>
+                            <small>Create a section heading</small>
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-block-type="bullet"
+                    >
+                        <strong>•</strong>
+                        <span>
+                            <b>Bullet List</b>
+                            <small>Create a list item</small>
+                        </span>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-block-type="code"
+                    >
+                        <strong>&lt;/&gt;</strong>
+                        <span>
+                            <b>Code</b>
+                            <small>Add a code block</small>
+                        </span>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="js/editor/editor.js"
+    ></script>
+
+</body>
+
+</html>
