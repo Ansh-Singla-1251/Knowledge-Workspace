@@ -1,124 +1,67 @@
 import state from "../state/store.js";
+import {generateId} from "../utils/id.js";
+import {persistState} from "../storage/storage.js";
 
-import {
-    generateId
-} from "../utils/id.js";
-
-
-export function createWorkspace(name) {
-
+export function createWorkspace(name){
     const workspace = {
-
         id: generateId("workspace"),
-
         name: name,
-
         createdAt: new Date()
-
     };
 
-    state.workspaces.push(
-        workspace
+    state.workspaces.push(workspace);
+    persistState();
+
+    return workspace;
+}
+
+export function selectWorkspace(workspaceId){
+    const workspace = state.workspaces.find(
+        workspace => workspace.id === workspaceId
     );
 
-    return workspace;
+    if(!workspace) return;
 
-}
-
-
-export function selectWorkspace(
-    workspaceId
-) {
-
-    const workspace =
-        state.workspaces.find(
-            workspace =>
-                workspace.id === workspaceId
-        );
-
-    if (!workspace) {
-        return;
-    }
-
-    state.currentWorkspaceId =
-        workspaceId;
+    state.currentWorkspaceId = workspaceId;
 
     return workspace;
-
 }
 
-
-export function updateWorkspace(
-    workspaceId,
-    newName
-) {
-
-    const workspace =
-        state.workspaces.find(
-            workspace =>
-                workspace.id === workspaceId
-        );
-
-    if (!workspace) {
-        return;
-    }
-
-    workspace.name =
-        newName;
-
-    return workspace;
-
-}
-
-
-export function deleteWorkspace(
-    workspaceId
-) {
-
-    state.documents =
-        state.documents.filter(
-            document =>
-                document.workspaceId !== workspaceId
-        );
-
-    state.folders =
-        state.folders.filter(
-            folder =>
-                folder.workspaceId !== workspaceId
-        );
-
-
-    const workspaceIndex =
-        state.workspaces.findIndex(
-            workspace =>
-                workspace.id === workspaceId
-        );
-
-    if (workspaceIndex === -1) {
-        return;
-    }
-
-
-    state.workspaces.splice(
-        workspaceIndex,
-        1
+export function updateWorkspace(workspaceId,newName){
+    const workspace = state.workspaces.find(
+        workspace => workspace.id === workspaceId
     );
 
+    if(!workspace) return;
 
-    if (
-        state.currentWorkspaceId ===
-        workspaceId
-    ) {
+    workspace.name = newName;
+    persistState();
 
-        state.currentWorkspaceId =
-            null;
+    return workspace;
+}
 
-        state.currentFolderId =
-            null;
+export function deleteWorkspace(workspaceId){
+    state.documents = state.documents.filter(
+        document => document.workspaceId !== workspaceId
+    );
 
-        state.currentDocumentId =
-            null;
+    state.folders = state.folders.filter(
+        folder => folder.workspaceId !== workspaceId
+    );
 
+    const workspaceIndex = state.workspaces.findIndex(
+        workspace => workspace.id === workspaceId
+    );
+
+    if(workspaceIndex === -1) return;
+
+    state.workspaces.splice(workspaceIndex,1);
+
+    if(state.currentWorkspaceId === workspaceId){
+        state.currentWorkspaceId = null;
+        state.currentFolderId = null;
+        state.currentDocumentId = null;
     }
 
+    persistState();
 }
