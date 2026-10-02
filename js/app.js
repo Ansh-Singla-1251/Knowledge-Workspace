@@ -127,3 +127,74 @@ async function createNewDocument(){
 }
 
 document.getElementById("createDocumentBtn").addEventListener("click",createNewDocument);
+
+const documentSearch = document.getElementById("documentSearch");
+
+documentSearch.addEventListener("input",event => {
+    const query = event.target.value.trim().toLowerCase();
+
+    const documents = state.documents.filter(document =>
+        document.title.toLowerCase().includes(query) ||
+        document.tags.some(tag =>
+            tag.toLowerCase().includes(query)
+        )
+    );
+
+    renderDocuments(state.currentFolderId,documents);
+});
+
+
+let showingFavorites = false;
+let showingRecent = false;
+
+const favoritesFilterBtn =
+    document.getElementById("favoritesFilterBtn");
+
+const recentFilterBtn =
+    document.getElementById("recentFilterBtn");
+
+favoritesFilterBtn.addEventListener("click",() => {
+    showingFavorites = !showingFavorites;
+    showingRecent = false;
+
+    recentFilterBtn.classList.remove("active");
+
+    if(showingFavorites){
+        const favoriteDocuments = state.documents.filter(
+            document => document.favorite
+        );
+
+        renderDocuments(state.currentFolderId,favoriteDocuments);
+
+        favoritesFilterBtn.classList.add("active");
+    }else{
+        renderDocuments(state.currentFolderId);
+
+        favoritesFilterBtn.classList.remove("active");
+    }
+});
+
+recentFilterBtn.addEventListener("click",() => {
+    showingRecent = !showingRecent;
+    showingFavorites = false;
+
+    favoritesFilterBtn.classList.remove("active");
+
+    if(showingRecent){
+        const recentDocuments = [...state.documents]
+            .filter(document => document.lastOpenedAt)
+            .sort(
+                (a,b) =>
+                    new Date(b.lastOpenedAt) -
+                    new Date(a.lastOpenedAt)
+            );
+
+        renderDocuments(state.currentFolderId,recentDocuments);
+
+        recentFilterBtn.classList.add("active");
+    }else{
+        renderDocuments(state.currentFolderId);
+
+        recentFilterBtn.classList.remove("active");
+    }
+});

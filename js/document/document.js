@@ -10,6 +10,7 @@ export function createDocument(title,workspaceId,folderId = null){
         folderId: folderId,
         blocks: [],
         tags: [],
+        favorite:false,
         createdAt: new Date(),
         updatedAt: new Date()
     };
@@ -34,6 +35,9 @@ export function selectDocument(documentId){
     if(!document) return;
 
     state.currentDocumentId = documentId;
+    document.lastOpenedAt = new Date();
+
+    persistState();
 
     return document;
 }
