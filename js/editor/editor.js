@@ -1,5 +1,7 @@
 import state from "../state/store.js";
 import {openDatabase,loadState} from "../storage/database.js";
+import {linkDocuments,getBacklinks} from "../document/document.js";
+import {requestInput,resetModalInput} from "../utils/modal.js";
 import {persistState} from "../storage/storage.js";
 
 const documentTitle = document.getElementById("documentTitle");
@@ -7,6 +9,8 @@ const editorBlocks = document.getElementById("editorBlocks");
 const addBlockBtn = document.getElementById("addBlockBtn");
 const blockMenu = document.getElementById("blockMenu");
 const saveIndicator = document.getElementById("saveIndicator");
+const linkedDocuments =document.getElementById("linkedDocuments");
+const backlinkDocuments =document.getElementById("backlinkDocuments");
 
 let saveTimer = null;
 
@@ -38,7 +42,7 @@ async function initializeEditor(){
         state.currentDocumentId = documentId;
 
         loadDocument(currentDocument);
-
+        renderConnections();
     }catch(error){
         console.error("Failed to initialize editor:",error);
         documentTitle.value = "Unable to load document";
@@ -48,7 +52,52 @@ async function initializeEditor(){
 
 initializeEditor();
 
+const linkDocumentBtn =
+    document.getElementById("linkDocumentBtn");
 
+linkDocumentBtn.addEventListener("click",async () => {
+    if(!currentDocument){
+        return;
+    }
+
+    const availableDocuments = state.documents.filter(
+        document => document.id !== currentDocument.id
+    );
+
+    if(availableDocuments.length === 0){
+        return;
+    }
+
+    const titles = availableDocuments
+        .map(document => document.title)
+        .join(", ");
+
+    resetModalInput();
+
+    const title = await requestInput({
+        titleText:"Link document",
+        descriptionText:`Available documents: ${titles}`,
+        confirmText:"Link"
+    });
+
+    if(!title){
+        return;
+    }
+
+    const targetDocument = availableDocuments.find(
+        document =>
+            document.title.toLowerCase() === title.toLowerCase()
+    );
+
+    if(!targetDocument){
+        return;
+    }
+
+    linkDocuments(
+        currentDocument.id,
+        targetDocument.id
+    );
+});
 /* Load document */
 
 function loadDocument(doc){
@@ -70,7 +119,96 @@ function loadDocument(doc){
     });
 }
 
+function renderConnections(){
+    linkedDocuments.innerHTML = "";
+    backlinkDocuments.innerHTML = "";
 
+    if(!currentDocument){
+        return;
+    }
+
+    const links = currentDocument.links || [];
+
+    if(links.length === 0){
+        linkedDocuments.innerHTML =
+            `<p class="connection-empty">No linked documents.</p>`;
+    }else{
+        links.forEach(documentId => {
+            const linkedDocument = state.documents.find(
+                item => item.id === documentId
+            );
+
+            if(!linkedDocument){
+                return;
+            }
+
+            const wrapper = document.createElement("div");
+
+            wrapper.className = "connection-item";
+
+            wrapper.innerHTML = `
+                <button
+                    class="connection-document"
+                    type="button"
+                >
+                    ${linkedDocument.title}
+                </button>
+
+                <button
+                    class="remove-link-btn"
+                    type="button"
+                    title="Remove link"
+                >
+                    ×
+                </button>
+            `;
+
+            wrapper
+                .querySelector(".connection-document")
+                .addEventListener("click",() => {
+                    window.location.href =
+                        `editor.html?id=${encodeURIComponent(linkedDocument.id)}`;
+                });
+
+            wrapper
+                .querySelector(".remove-link-btn")
+                .addEventListener("click",() => {
+                    currentDocument.links =
+                        currentDocument.links.filter(
+                            id => id !== linkedDocument.id
+                        );
+
+                    currentDocument.updatedAt = new Date();
+
+                    renderConnections();
+                    persistState();
+                });
+
+            linkedDocuments.appendChild(wrapper);
+        });
+    }
+
+    const backlinks = getBacklinks(currentDocument.id);
+
+    if(backlinks.length === 0){
+        backlinkDocuments.innerHTML =
+            `<p class="connection-empty">No backlinks yet.</p>`;
+    }else{
+        backlinks.forEach(backlink => {
+            const element = document.createElement("button");
+
+            element.className = "connection-document";
+            element.textContent = backlink.title;
+
+            element.addEventListener("click",() => {
+                window.location.href =
+                    `editor.html?id=${encodeURIComponent(backlink.id)}`;
+            });
+
+            backlinkDocuments.appendChild(element);
+        });
+    }
+}
 /* Create block */
 
 function createBlock(type,content = "",focus = true,id = null){

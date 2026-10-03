@@ -41,6 +41,13 @@
             <span>Workspace</span>
         </a>
 
+        <button
+            id="linkDocumentBtn"
+            class="editor-link-btn"
+            type="button"
+        >
+            Link document
+        </button>
 
         <div class="editor-status">
 
@@ -78,8 +85,18 @@
 
             </div>
 
+            <section class="document-connections">
+                <div class="connection-section">
+                    <h3>Linked documents</h3>
+                    <div id="linkedDocuments"></div>
+                </div>
 
-            <div class="add-block-wrapper">
+                <div class="connection-section">
+                    <h3>Backlinks</h3>
+                    <div id="backlinkDocuments"></div>
+                </div>
+            </section>
+                        <div class="add-block-wrapper">
 
                 <button
                     id="addBlockBtn"
@@ -160,7 +177,30 @@
 
     </main>
 
+    <div id="modalBackdrop" class="modal-backdrop">
+        <div id="modal" class="modal">
+            <button id="modalClose" class="modal-close" type="button">×</button>
 
+            <h2 id="modalTitle"></h2>
+            <p id="modalDescription"></p>
+
+            <input
+                id="modalInput"
+                type="text"
+                autocomplete="off"
+            >
+
+            <div class="modal-actions">
+                <button id="modalCancel" class="secondary-btn" type="button">
+                    Cancel
+                </button>
+
+                <button id="modalConfirm" class="primary-btn" type="button">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
     <script
         type="module"
         src="js/editor/editor.js"

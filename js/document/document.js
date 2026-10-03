@@ -10,7 +10,8 @@ export function createDocument(title,workspaceId,folderId = null){
         folderId: folderId,
         blocks: [],
         tags: [],
-        favorite:false,
+        links: [],
+        favorite: false,
         createdAt: new Date(),
         updatedAt: new Date()
     };
@@ -71,4 +72,57 @@ export function deleteDocument(documentId){
     }
 
     persistState();
+}
+
+export function linkDocuments(documentId,targetDocumentId){
+    const document = state.documents.find(
+        document => document.id === documentId
+    );
+
+    const targetDocument = state.documents.find(
+        document => document.id === targetDocumentId
+    );
+
+    if(!document || !targetDocument) return;
+
+    if(!document.links){
+        document.links = [];
+    }
+
+    if(documentId === targetDocumentId){
+        return;
+    }
+
+    if(document.links.includes(targetDocumentId)){
+        return;
+    }
+
+    document.links.push(targetDocumentId);
+    document.updatedAt = new Date();
+
+    persistState();
+}
+
+export function unlinkDocuments(documentId,targetDocumentId){
+    const document = state.documents.find(
+        document => document.id === documentId
+    );
+
+    if(!document || !document.links) return;
+
+    document.links = document.links.filter(
+        id => id !== targetDocumentId
+    );
+
+    document.updatedAt = new Date();
+
+    persistState();
+}
+
+export function getBacklinks(documentId){
+    return state.documents.filter(
+        document =>
+            document.links &&
+            document.links.includes(documentId)
+    );
 }
