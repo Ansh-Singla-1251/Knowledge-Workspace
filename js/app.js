@@ -9,6 +9,7 @@ import {renderDocuments} from "./components/documentList.js";
 import {requestInput,resetModalInput} from "./utils/modal.js";
 import {showToast} from "./utils/toast.js";
 import {openDatabase,loadState,saveState} from "./storage/database.js";
+import {renderMindMap} from "./mindmap/mindmap.js";
 
 console.log("Knowledge Workspace started!");
 
@@ -38,7 +39,7 @@ async function initializeApp(){
 
         renderWorkspaces(state.workspaces);
         renderFolders(state.currentWorkspaceId);
-
+        renderMindMap();
     }catch(error){
         console.error("Failed to initialize application:",error);
         showToast("Unable to load saved data.","error");

@@ -3,6 +3,7 @@ import {openDatabase,loadState} from "../storage/database.js";
 import {linkDocuments,getBacklinks} from "../document/document.js";
 import {requestInput,resetModalInput} from "../utils/modal.js";
 import {persistState} from "../storage/storage.js";
+import {createMindMapBlock} from "./mindmap.js";
 
 const documentTitle = document.getElementById("documentTitle");
 const editorBlocks = document.getElementById("editorBlocks");
@@ -219,6 +220,11 @@ function createBlock(type,content = "",focus = true,id = null){
         id ||
         `block-${Date.now()}-${Math.random().toString(36).substring(2,8)}`;
 
+    if(type === "mindmap"){
+        createMindMapBlock(block,content,markUnsaved);
+        editorBlocks.appendChild(block);
+        return block;
+    }
     const textarea = document.createElement("textarea");
 
     textarea.rows = 1;
@@ -476,11 +482,25 @@ async function saveDocument(){
         documentTitle.value.trim() || "Untitled document";
 
     currentDocument.blocks =
-        [...editorBlocks.children].map(block => ({
-            id: block.dataset.id,
-            type: getBlockType(block),
-            content: block.querySelector("textarea").value
-        }));
+        [...editorBlocks.children].map(block => {
+
+            if(block.classList.contains("mindmap")){
+                return {
+                    id: block.dataset.id,
+                    type: "mindmap",
+                    content: block.dataset.content || JSON.stringify({
+                        nodes: [],
+                        connections: []
+                    })
+                };
+            }
+
+            return {
+                id: block.dataset.id,
+                type: getBlockType(block),
+                content: block.querySelector("textarea").value
+            };
+        });
 
     currentDocument.updatedAt = new Date();
 

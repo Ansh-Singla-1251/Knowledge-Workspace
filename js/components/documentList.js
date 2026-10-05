@@ -1,15 +1,23 @@
 import state from "../state/store.js";
 
-import {selectDocument,getFolderDocuments,deleteDocument,updateDocument} from "../document/document.js";
+import {
+    selectDocument,
+    getFolderDocuments,
+    deleteDocument,
+    updateDocument
+} from "../document/document.js";
 
 import {icons} from "../utils/icons.js";
 
-import {requestInput,requestConfirmation,resetModalInput} from "../utils/modal.js";
+import {
+    requestInput,
+    requestConfirmation,
+    resetModalInput
+} from "../utils/modal.js";
 
 import {showToast} from "../utils/toast.js";
 
 import {persistState} from "../storage/storage.js";
-
 
 export function renderDocuments(folderId,documents = null){
     const documentGrid = document.getElementById("documentGrid");
@@ -36,9 +44,9 @@ export function renderDocuments(folderId,documents = null){
                 </p>
 
                 <button
-                id="emptyCreateDocumentBtn"
-                class="primary-btn"
-                type="button"
+                    id="emptyCreateDocumentBtn"
+                    class="primary-btn"
+                    type="button"
                 >
                     Create your first document
                 </button>
@@ -62,7 +70,6 @@ export function renderDocuments(folderId,documents = null){
         return;
     }
 
-
     documents.forEach(doc => {
 
         const documentElement = document.createElement("div");
@@ -71,10 +78,28 @@ export function renderDocuments(folderId,documents = null){
 
         documentElement.dataset.id = doc.id;
 
+        const tags = Array.isArray(doc.tags)
+            ? doc.tags
+            : [];
+
+        const favorite = doc.favorite === true;
+
         documentElement.innerHTML = `
 
-            <div class="document-icon">
-                ${icons.document}
+            <div class="document-card-top">
+
+                <div class="document-icon">
+                    ${icons.document}
+                </div>
+
+                <button
+                    class="favorite-document-btn"
+                    title="Toggle favorite"
+                    type="button"
+                >
+                    ${favorite ? "★" : "☆"}
+                </button>
+
             </div>
 
             <div class="document-info">
@@ -87,49 +112,51 @@ export function renderDocuments(folderId,documents = null){
                     ${doc.blocks.length} blocks
                 </p>
 
-                ${doc.tags.length > 0 ? `
-                    <div class="document-tags">
-                        ${doc.tags.map(tag => `<span>#${tag}</span>`).join("")}
-                    </div>
-                ` : ""}
+            </div>
+
+            <div class="document-meta-row">
+
+                <div class="document-tags">
+
+                    ${tags.map(tag => `<span>#${tag}</span>`).join("")}
+
+                    <button
+                        class="tag-document-btn"
+                        title="${tags.length > 0 ? "Edit tags" : "Add tags"}"
+                        type="button"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+                <div class="document-card-actions">
+
+                    <button
+                        class="rename-document-btn"
+                        title="Rename document"
+                        type="button"
+                    >
+                        ${icons.edit}
+                    </button>
+
+                    <button
+                        class="delete-document-btn"
+                        title="Delete document"
+                        type="button"
+                    >
+                        ${icons.trash}
+                    </button>
+
+                </div>
 
             </div>
 
-            <button
-                class="rename-document-btn"
-                title="Rename document"
-            >
-                ${icons.edit}
-            </button>
-
-            <button
-                class="favorite-document-btn"
-                title="Toggle favorite"
-            >
-                ${doc.favorite ? "★" : "☆"}
-            </button>
-
-            <button
-                class="tag-document-btn"
-                title="Edit tags"
-            >
-                #
-            </button>
-
-            <button
-                class="delete-document-btn"
-                title="Delete document"
-            >
-                ${icons.trash}
-            </button>
-
         `;
-
 
         if(doc.id === state.currentDocumentId){
             documentElement.classList.add("active");
         }
-
 
         documentElement.addEventListener("click",event => {
 
@@ -149,10 +176,8 @@ export function renderDocuments(folderId,documents = null){
 
         });
 
-
         const renameButton =
             documentElement.querySelector(".rename-document-btn");
-
 
         renameButton.addEventListener("click",async event => {
 
@@ -179,10 +204,8 @@ export function renderDocuments(folderId,documents = null){
 
         });
 
-
         const favoriteButton =
             documentElement.querySelector(".favorite-document-btn");
-
 
         favoriteButton.addEventListener("click",event => {
 
@@ -202,10 +225,8 @@ export function renderDocuments(folderId,documents = null){
 
         });
 
-
         const tagButton =
             documentElement.querySelector(".tag-document-btn");
-
 
         tagButton.addEventListener("click",async event => {
 
@@ -213,18 +234,18 @@ export function renderDocuments(folderId,documents = null){
 
             resetModalInput();
 
-            const tags = await requestInput({
+            const enteredTags = await requestInput({
                 titleText:"Edit document tags",
                 descriptionText:"Enter tags separated by commas.",
-                value:doc.tags.join(", "),
+                value:tags.join(", "),
                 confirmText:"Save"
             });
 
-            if(tags === null){
+            if(enteredTags === null){
                 return;
             }
 
-            doc.tags = tags
+            doc.tags = enteredTags
                 .split(",")
                 .map(tag => tag.trim().toLowerCase())
                 .filter(tag => tag);
@@ -237,10 +258,8 @@ export function renderDocuments(folderId,documents = null){
 
         });
 
-
         const deleteButton =
             documentElement.querySelector(".delete-document-btn");
-
 
         deleteButton.addEventListener("click",async event => {
 
@@ -263,7 +282,6 @@ export function renderDocuments(folderId,documents = null){
             showToast("Document deleted.");
 
         });
-
 
         documentGrid.appendChild(documentElement);
 

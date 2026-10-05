@@ -11,15 +11,10 @@
 
     <title>Knowledge Workspace — Editor</title>
 
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/editor.css"
-    >
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/components.css">
+    
 </head>
 
 <body class="editor-page">
@@ -156,7 +151,16 @@
                             <small>Create a list item</small>
                         </span>
                     </button>
-
+                    <button
+                        type="button"
+                        data-block-type="mindmap"
+                    >
+                        <strong>✦</strong>
+                        <span>
+                            <b>Mind Map</b>
+                            <small>Create a visual mind map</small>
+                        </span>
+                    </button>
 
                     <button
                         type="button"
@@ -186,6 +190,7 @@
 
             <input
                 id="modalInput"
+                name="modalInput"
                 type="text"
                 autocomplete="off"
             >

@@ -333,42 +333,120 @@
     background: #B8A7FF;
 }
 
-.rename-document-btn,
-.delete-document-btn {
-    position: absolute;
-    bottom: 18px;
-    width: 30px;
-    height: 30px;
+.document-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.favorite-document-btn {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    font-size: 19px;
+    line-height: 1;
+    transition: color 160ms ease, transform 160ms ease;
+}
+
+.favorite-document-btn:hover {
+    color: #B87935;
+    transform: scale(1.12);
+}
+
+.document-info {
+    margin-top: 16px;
+}
+
+.document-meta-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: #F7F4ED;
-    font-size: 13px;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    min-height: 30px;
+}
+
+.document-tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-width: 0;
+}
+
+.document-tags span {
+    padding: 4px 7px;
+    background: #F1EEE6;
+    color: #666;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.tag-document-btn {
+    border: none;
+    background: transparent;
+    color: #999;
+    padding: 3px 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 150ms ease, background 150ms ease;
+}
+
+.tag-document-btn:hover {
+    color: #171717;
+    background: #F1EEE6;
+    border-radius: 5px;
+}
+
+.document-add-tag {
+    padding: 4px 7px;
+}
+
+.document-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(3px);
+    transition: opacity 160ms ease, transform 160ms ease;
 }
 
-.rename-document-btn {
-    right: 52px;
-}
-
-.delete-document-btn {
-    right: 18px;
-}
-
-.document-card:hover .rename-document-btn,
-.document-card:hover .delete-document-btn {
+.document-card:hover .document-card-actions {
     opacity: 1;
     transform: translateY(0);
 }
 
+.rename-document-btn,
+.delete-document-btn {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 150ms ease, color 150ms ease;
+}
+
 .rename-document-btn:hover {
-    background: #B8A7FF;
+    background: #F1EEE6;
+    color: #171717;
 }
 
 .delete-document-btn:hover {
-    background: #FF6B5E;
+    background: #F8EDED;
+    color: #9B3D3D;
 }
 
 .workspace-item,
@@ -962,7 +1040,6 @@ svg {
 }
 
 @keyframes fadeUp {
-
     from {
         opacity: 0;
         transform: translateY(12px);
@@ -972,11 +1049,9 @@ svg {
         opacity: 1;
         transform: translateY(0);
     }
-
 }
 
 @keyframes scaleIn {
-
     from {
         opacity: 0;
         transform: scale(0.96);
@@ -986,11 +1061,9 @@ svg {
         opacity: 1;
         transform: scale(1);
     }
-
 }
 
 @keyframes toastIn {
-
     from {
         opacity: 0;
         transform: translateY(12px) scale(0.96);
@@ -1000,11 +1073,9 @@ svg {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-
 }
 
 @keyframes toastOut {
-
     from {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -1014,28 +1085,22 @@ svg {
         opacity: 0;
         transform: translateY(8px) scale(0.97);
     }
-
 }
 
 @media (min-width: 1200px) {
-
     .dashboard-header {
         padding-top: 45px;
         padding-bottom: 65px;
     }
-
 }
 
 @media (max-width: 850px) {
-
     .quick-actions {
         grid-template-columns: 1fr;
     }
-
 }
 
 @media (max-width: 700px) {
-
     .sidebar {
         display: none;
     }
@@ -1069,10 +1134,17 @@ svg {
         width: 100%;
     }
 
+    .document-meta-row {
+        align-items: flex-start;
+    }
+
+    .document-card-actions {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     .dashboard-header,
     .quick-actions,
     .content-section,
@@ -1080,7 +1152,6 @@ svg {
     .empty-state {
         animation: none;
     }
-
 }
 
 .document-search {
@@ -1128,7 +1199,13 @@ svg {
 
 #favoritesFilterBtn,
 #recentFilterBtn {
+    background: transparent;
     margin-bottom: 22px;
+}
+
+#favoritesFilterBtn:hover,
+#recentFilterBtn:hover {
+    background: rgba(23,23,23,0.05);
 }
 
 #favoritesFilterBtn.active,
@@ -1136,47 +1213,4 @@ svg {
     background: #171717;
     color: #FFFFFF;
     border-color: #171717;
-}
-
-.document-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 8px;
-}
-
-.document-tags span {
-    padding: 4px 7px;
-    background: #F1EEE6;
-    color: #666;
-    border-radius: 5px;
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.favorite-document-btn,
-.tag-document-btn {
-    border: none;
-    background: transparent;
-    color: #777;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 16px;
-    transition: color 150ms ease, transform 150ms ease;
-}
-
-.favorite-document-btn:hover {
-    color: #B87935;
-    transform: scale(1.1);
-}
-
-.tag-document-btn:hover {
-    color: #171717;
-    transform: scale(1.1);
-}
-
-@media (max-width: 700px) {
-    .document-search {
-        max-width: none;
-    }
 }
