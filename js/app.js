@@ -10,6 +10,7 @@ import {requestInput,resetModalInput} from "./utils/modal.js";
 import {showToast} from "./utils/toast.js";
 import {openDatabase,loadState,saveState} from "./storage/database.js";
 import {renderMindMap} from "./mindmap/mindmap.js";
+import {searchWikipedia,getWikipediaSummary} from "./wikipedia/wikipedia.js";
 
 console.log("Knowledge Workspace started!");
 
@@ -30,7 +31,7 @@ async function initializeApp(){
             createDocument("DBMS",workspace.id,collegeFolder.id);
 
             await saveState(state);
-        } else {
+        }else{
             state.workspaces = savedState.workspaces;
             state.folders = savedState.folders;
             state.documents = savedState.documents;
@@ -47,6 +48,8 @@ async function initializeApp(){
 }
 
 initializeApp();
+
+
 
 document.getElementById("addWorkspaceBtn").addEventListener("click",async () => {
     resetModalInput();
@@ -199,3 +202,4 @@ recentFilterBtn.addEventListener("click",() => {
         recentFilterBtn.classList.remove("active");
     }
 });
+

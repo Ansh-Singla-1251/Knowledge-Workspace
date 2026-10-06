@@ -669,6 +669,10 @@ svg {
     pointer-events: none;
 }
 
+.mindmap-svg {
+    pointer-events: auto;
+}
+
 .nav-item svg {
     width: 17px;
     height: 17px;

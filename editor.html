@@ -36,13 +36,26 @@
             <span>Workspace</span>
         </a>
 
-        <button
-            id="linkDocumentBtn"
-            class="editor-link-btn"
-            type="button"
-        >
-            Link document
-        </button>
+        <div class="editor-actions">
+
+            <button
+                id="wikipediaToggle"
+                class="editor-research-btn"
+                type="button"
+            >
+                <span>⌕</span>
+                Research
+            </button>
+
+            <button
+                id="linkDocumentBtn"
+                class="editor-link-btn"
+                type="button"
+            >
+                Link document
+            </button>
+
+        </div>
 
         <div class="editor-status">
 
@@ -81,6 +94,7 @@
             </div>
 
             <section class="document-connections">
+
                 <div class="connection-section">
                     <h3>Linked documents</h3>
                     <div id="linkedDocuments"></div>
@@ -90,8 +104,11 @@
                     <h3>Backlinks</h3>
                     <div id="backlinkDocuments"></div>
                 </div>
+
             </section>
-                        <div class="add-block-wrapper">
+
+
+            <div class="add-block-wrapper">
 
                 <button
                     id="addBlockBtn"
@@ -151,6 +168,8 @@
                             <small>Create a list item</small>
                         </span>
                     </button>
+
+
                     <button
                         type="button"
                         data-block-type="mindmap"
@@ -161,6 +180,7 @@
                             <small>Create a visual mind map</small>
                         </span>
                     </button>
+
 
                     <button
                         type="button"
@@ -181,11 +201,85 @@
 
     </main>
 
+
+    <aside
+        id="wikipediaPanel"
+        class="wikipedia-panel"
+    >
+
+        <div class="wikipedia-panel-header">
+
+            <div>
+                <span class="wikipedia-panel-eyebrow">
+                    RESEARCH
+                </span>
+
+                <h2>Wikipedia</h2>
+
+                <p>
+                    Find information without leaving your notes.
+                </p>
+            </div>
+
+            <button
+                id="wikipediaClose"
+                class="wikipedia-close"
+                type="button"
+                aria-label="Close research panel"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="wikipedia-search">
+
+            <input
+                id="wikipediaSearch"
+                type="text"
+                placeholder="Search Wikipedia..."
+                autocomplete="off"
+            >
+
+            <button
+                id="wikipediaSearchBtn"
+                type="button"
+            >
+                Search
+            </button>
+
+        </div>
+
+
+        <div
+            id="wikipediaResults"
+            class="wikipedia-results"
+        >
+
+            <div class="wikipedia-empty">
+                Search Wikipedia to start researching.
+            </div>
+
+        </div>
+
+    </aside>
+
+
     <div id="modalBackdrop" class="modal-backdrop">
+
         <div id="modal" class="modal">
-            <button id="modalClose" class="modal-close" type="button">×</button>
+
+            <button
+                id="modalClose"
+                class="modal-close"
+                type="button"
+            >
+                ×
+            </button>
 
             <h2 id="modalTitle"></h2>
+
             <p id="modalDescription"></p>
 
             <input
@@ -196,16 +290,30 @@
             >
 
             <div class="modal-actions">
-                <button id="modalCancel" class="secondary-btn" type="button">
+
+                <button
+                    id="modalCancel"
+                    class="secondary-btn"
+                    type="button"
+                >
                     Cancel
                 </button>
 
-                <button id="modalConfirm" class="primary-btn" type="button">
+                <button
+                    id="modalConfirm"
+                    class="primary-btn"
+                    type="button"
+                >
                     Confirm
                 </button>
+
             </div>
+
         </div>
+
     </div>
+
+
     <script
         type="module"
         src="js/editor/editor.js"

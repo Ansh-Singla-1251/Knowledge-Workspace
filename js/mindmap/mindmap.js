@@ -30,40 +30,105 @@ export function renderMindMap(){
     const nodes = [];
     const nodeMap = new Map();
 
+    const folderWidth = 180;
+    const documentWidth = 120;
+    const documentGap = 50;
+    const folderGap = 80;
+    const levelGap = 120;
+
+    const workspaceFolders = new Map();
+
+    state.folders.forEach(folder => {
+        if(!workspaceFolders.has(folder.workspaceId)){
+            workspaceFolders.set(folder.workspaceId,[]);
+        }
+
+        workspaceFolders.get(folder.workspaceId).push(folder);
+    });
+
     state.workspaces.forEach((workspace,index) => {
-        const node = {
+        const folders = workspaceFolders.get(workspace.id) || [];
+
+        const folderRegions = folders.map(folder => {
+            const documents = state.documents.filter(
+                document => document.folderId === folder.id
+            );
+
+            const documentWidthTotal =
+                documents.length > 0
+                    ? documents.length * documentWidth +
+                    (documents.length - 1) * documentGap
+                    : folderWidth;
+
+            return {
+                folder,
+                documents,
+                width: Math.max(folderWidth,documentWidthTotal)
+            };
+        });
+
+        const totalWidth = folderRegions.reduce(
+            (sum,region) => sum + region.width,
+            0
+        ) + Math.max(0,folderRegions.length - 1) * folderGap;
+
+        let currentX = 360 - totalWidth / 2;
+
+        const workspaceNode = {
             id: workspace.id,
             type: "workspace",
             label: workspace.name,
             x: 360,
-            y: 70 + index * 140
+            y: 70 + index * 420
         };
 
-        nodes.push(node);
-        nodeMap.set(node.id,node);
-    });
+        nodes.push(workspaceNode);
+        nodeMap.set(workspaceNode.id,workspaceNode);
 
-    state.folders.forEach(folder => {
-        const parent = nodeMap.get(folder.workspaceId);
+        folderRegions.forEach(region => {
+            const folder = region.folder;
+            const folderCenterX =
+                currentX + region.width / 2;
 
-        if(!parent) return;
+            const folderNode = {
+                id: folder.id,
+                type: "folder",
+                label: folder.name,
+                x: folderCenterX,
+                y: workspaceNode.y + levelGap
+            };
 
-        const workspaceFolders = state.folders.filter(
-            item => item.workspaceId === folder.workspaceId
-        );
+            nodes.push(folderNode);
+            nodeMap.set(folderNode.id,folderNode);
 
-        const index = workspaceFolders.indexOf(folder);
+            const documents = region.documents;
 
-        const node = {
-            id: folder.id,
-            type: "folder",
-            label: folder.name,
-            x: parent.x - 180 + index * 180,
-            y: parent.y + 120
-        };
+            if(documents.length > 0){
+                const documentsTotalWidth =
+                    documents.length * documentWidth +
+                    (documents.length - 1) * documentGap;
 
-        nodes.push(node);
-        nodeMap.set(node.id,node);
+                let documentX =
+                    folderCenterX - documentsTotalWidth / 2;
+
+                documents.forEach(document => {
+                    const documentNode = {
+                        id: document.id,
+                        type: "document",
+                        label: document.title,
+                        x: documentX + documentWidth / 2,
+                        y: folderNode.y + levelGap - 15
+                    };
+
+                    nodes.push(documentNode);
+                    nodeMap.set(documentNode.id,documentNode);
+
+                    documentX += documentWidth + documentGap;
+                });
+            }
+
+            currentX += region.width + folderGap;
+        });
     });
 
     state.documents.forEach(document => {
@@ -81,14 +146,13 @@ export function renderMindMap(){
             id: document.id,
             type: "document",
             label: document.title,
-            x: parent.x - 180 + index * 120
-                ,
+            x: parent.x - ((folderDocuments.length - 1) * 85) + index * 170,
             y: parent.y + 105
         };
 
         nodes.push(node);
         nodeMap.set(node.id,node);
-    });
+    });  
 
     const linesGroup = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -161,6 +225,21 @@ export function renderMindMap(){
 
         if(node.type === "document"){
             group.dataset.documentId = node.id;
+            group.addEventListener("mouseenter",() => {
+                document.querySelectorAll(".mindmap-link").forEach(line => {
+                    const from = line.getAttribute("data-from");
+                    const to = line.getAttribute("data-to");
+                    if(from === node.id || to === node.id){
+                        line.classList.add("mindmap-link-active");
+                    }
+                });
+            });
+
+            group.addEventListener("mouseleave",() => {
+                document.querySelectorAll(".mindmap-link").forEach(line => {
+                    line.classList.remove("mindmap-link-active");
+                });
+            });
 
             group.addEventListener("dblclick",event => {
                 event.preventDefault();
@@ -192,7 +271,7 @@ export function renderMindMap(){
     `;
 
     container.appendChild(legend);
-    updateViewport(viewport);
+    fitMindMap(svg,viewport);
 
     enableZoomAndPan(svg,viewport);
 }
@@ -215,18 +294,34 @@ function createConnection(source,target,isLink = false){
     path.setAttribute("d",d);
 
     path.classList.add("mindmap-line");
+    
     if(isLink){
         path.classList.add("mindmap-link");
 
+        path.setAttribute("data-from",source.id);
+        path.setAttribute("data-to",target.id);
+
         path.addEventListener("mouseenter",() => {
             path.classList.add("mindmap-link-active");
+
+            document.querySelectorAll(".mindmap-node").forEach(node => {
+                if(
+                    node.dataset.documentId === source.id ||
+                    node.dataset.documentId === target.id
+                ){
+                    node.classList.add("mindmap-node-active");
+                }
+            });
         });
 
         path.addEventListener("mouseleave",() => {
             path.classList.remove("mindmap-link-active");
+
+            document.querySelectorAll(".mindmap-node").forEach(node => {
+                node.classList.remove("mindmap-node-active");
+            });
         });
     }
-    
 
     return path;
 }
@@ -410,4 +505,32 @@ function updateViewport(viewport){
         "transform",
         `translate(${offsetX} ${offsetY}) scale(${scale})`
     );
+}
+
+function fitMindMap(svg,viewport){
+    const bounds = viewport.getBBox();
+
+    if(!bounds.width || !bounds.height){
+        return;
+    }
+
+    const padding = 50;
+    const viewBoxWidth = 720;
+    const viewBoxHeight = 480;
+
+    scale = Math.min(
+        (viewBoxWidth - padding * 2) / bounds.width,
+        (viewBoxHeight - padding * 2) / bounds.height,
+        1
+    );
+
+    offsetX =
+        viewBoxWidth / 2 -
+        (bounds.x + bounds.width / 2) * scale;
+
+    offsetY =
+        viewBoxHeight / 2 -
+        (bounds.y + bounds.height / 2) * scale;
+
+    updateViewport(viewport);
 }

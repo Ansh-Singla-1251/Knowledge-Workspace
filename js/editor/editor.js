@@ -4,14 +4,25 @@ import {linkDocuments,getBacklinks} from "../document/document.js";
 import {requestInput,resetModalInput} from "../utils/modal.js";
 import {persistState} from "../storage/storage.js";
 import {createMindMapBlock} from "./mindmap.js";
+import {
+    searchWikipedia,
+    getWikipediaSummary
+} from "../wikipedia/wikipedia.js";
 
 const documentTitle = document.getElementById("documentTitle");
 const editorBlocks = document.getElementById("editorBlocks");
 const addBlockBtn = document.getElementById("addBlockBtn");
 const blockMenu = document.getElementById("blockMenu");
 const saveIndicator = document.getElementById("saveIndicator");
-const linkedDocuments =document.getElementById("linkedDocuments");
-const backlinkDocuments =document.getElementById("backlinkDocuments");
+const linkedDocuments = document.getElementById("linkedDocuments");
+const backlinkDocuments = document.getElementById("backlinkDocuments");
+
+const wikipediaToggle = document.getElementById("wikipediaToggle");
+const wikipediaPanel = document.getElementById("wikipediaPanel");
+const wikipediaClose = document.getElementById("wikipediaClose");
+const wikipediaSearch = document.getElementById("wikipediaSearch");
+const wikipediaSearchBtn = document.getElementById("wikipediaSearchBtn");
+const wikipediaResults = document.getElementById("wikipediaResults");
 
 let saveTimer = null;
 
@@ -52,6 +63,7 @@ async function initializeEditor(){
 }
 
 initializeEditor();
+
 
 const linkDocumentBtn =
     document.getElementById("linkDocumentBtn");
@@ -99,7 +111,7 @@ linkDocumentBtn.addEventListener("click",async () => {
         targetDocument.id
     );
 });
-/* Load document */
+
 
 function loadDocument(doc){
     documentTitle.value = doc.title;
@@ -119,6 +131,7 @@ function loadDocument(doc){
         );
     });
 }
+
 
 function renderConnections(){
     linkedDocuments.innerHTML = "";
@@ -210,7 +223,7 @@ function renderConnections(){
         });
     }
 }
-/* Create block */
+
 
 function createBlock(type,content = "",focus = true,id = null){
     const block = document.createElement("div");
@@ -225,6 +238,7 @@ function createBlock(type,content = "",focus = true,id = null){
         editorBlocks.appendChild(block);
         return block;
     }
+
     const textarea = document.createElement("textarea");
 
     textarea.rows = 1;
@@ -401,20 +415,17 @@ function createBlock(type,content = "",focus = true,id = null){
 }
 
 
-/* Resize textarea */
-
 function autoResize(textarea){
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
 }
 
 
-/* Add block menu */
-
 addBlockBtn.addEventListener("click",event => {
     event.stopPropagation();
     blockMenu.classList.toggle("visible");
 });
+
 
 blockMenu.addEventListener("click",event => {
     const button = event.target.closest("button");
@@ -433,8 +444,6 @@ blockMenu.addEventListener("click",event => {
 });
 
 
-/* Close block menu */
-
 document.addEventListener("click",event => {
     if(
         !blockMenu.contains(event.target) &&
@@ -445,14 +454,10 @@ document.addEventListener("click",event => {
 });
 
 
-/* Document title */
-
 documentTitle.addEventListener("input",() => {
     markUnsaved();
 });
 
-
-/* Unsaved state */
 
 function markUnsaved(){
     if(!currentDocument){
@@ -470,8 +475,6 @@ function markUnsaved(){
     },500);
 }
 
-
-/* Save document */
 
 async function saveDocument(){
     if(!currentDocument){
@@ -519,8 +522,6 @@ async function saveDocument(){
 }
 
 
-/* Get block type */
-
 function getBlockType(blockElement){
     if(blockElement.classList.contains("heading")){
         return "heading";
@@ -536,5 +537,214 @@ function getBlockType(blockElement){
 
     return "paragraph";
 }
+
+
+/* Wikipedia research */
+
+wikipediaToggle.addEventListener("click",() => {
+    wikipediaPanel.classList.toggle("visible");
+
+    if(wikipediaPanel.classList.contains("visible")){
+        wikipediaSearch.focus();
+    }
+});
+
+wikipediaClose.addEventListener("click",() => {
+    wikipediaPanel.classList.remove("visible");
+});
+
+
+async function searchWikipediaArticles(){
+    const query = wikipediaSearch.value.trim();
+
+    if(!query){
+        wikipediaResults.innerHTML = `
+            <div class="wikipedia-empty">
+                Enter a topic to search Wikipedia.
+            </div>
+        `;
+        return;
+    }
+
+    wikipediaResults.innerHTML = `
+        <div class="wikipedia-loading">
+            Searching Wikipedia...
+        </div>
+    `;
+
+    try{
+        const results = await searchWikipedia(query);
+
+        if(results.length === 0){
+            wikipediaResults.innerHTML = `
+                <div class="wikipedia-empty">
+                    No articles found.
+                </div>
+            `;
+            return;
+        }
+
+        wikipediaResults.innerHTML = results.map(article => `
+            <article class="wikipedia-card">
+
+                <div class="wikipedia-card-content">
+
+                    <span class="wikipedia-card-label">
+                        WIKIPEDIA
+                    </span>
+
+                    <h3>${article.title}</h3>
+
+                    <p>
+                        ${article.description || "No description available."}
+                    </p>
+
+                    <button
+                        class="wikipedia-view-btn"
+                        type="button"
+                        data-title="${article.title}"
+                    >
+                        View article
+                    </button>
+
+                </div>
+
+            </article>
+        `).join("");
+
+        wikipediaResults
+            .querySelectorAll(".wikipedia-view-btn")
+            .forEach(button => {
+                button.addEventListener("click",() => {
+                    openWikipediaArticle(button.dataset.title);
+                });
+            });
+
+    }catch(error){
+        console.error("Wikipedia search failed:",error);
+
+        wikipediaResults.innerHTML = `
+            <div class="wikipedia-empty">
+                Unable to connect to Wikipedia.
+            </div>
+        `;
+    }
+}
+
+
+async function openWikipediaArticle(title){
+    wikipediaResults.innerHTML = `
+        <div class="wikipedia-loading">
+            Loading article...
+        </div>
+    `;
+
+    try{
+        const article = await getWikipediaSummary(title);
+
+        wikipediaResults.innerHTML = `
+            <article class="wikipedia-detail">
+
+                ${
+                    article.thumbnail?.source
+                        ? `
+                            <img
+                                src="${article.thumbnail.source}"
+                                alt="${article.title}"
+                            >
+                        `
+                        : ""
+                }
+
+                <div class="wikipedia-detail-content">
+
+                    <span class="wikipedia-card-label">
+                        WIKIPEDIA ARTICLE
+                    </span>
+
+                    <h3>${article.title}</h3>
+
+                    <p>
+                        ${article.extract || "No summary available."}
+                    </p>
+
+                    <div class="wikipedia-detail-actions">
+
+                        <a
+                            href="${article.content_urls?.desktop?.page || "#"}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="wikipedia-article-link"
+                        >
+                            Read full article ↗
+                        </a>
+
+                        <button
+                            type="button"
+                            class="wikipedia-insert-btn"
+                            id="wikipediaInsertBtn"
+                        >
+                            Insert into document
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+        `;
+
+        document
+            .getElementById("wikipediaInsertBtn")
+            .addEventListener("click",() => {
+                insertWikipediaArticle(article);
+            });
+
+    }catch(error){
+        console.error("Wikipedia article failed:",error);
+
+        wikipediaResults.innerHTML = `
+            <div class="wikipedia-empty">
+                Unable to load this article.
+            </div>
+        `;
+    }
+}
+
+
+function insertWikipediaArticle(article){
+    if(!currentDocument){
+        return;
+    }
+
+    const content =
+        `${article.title}\n\n${article.extract || ""}`;
+
+    const block = createBlock(
+        "paragraph",
+        content,
+        false
+    );
+
+    editorBlocks.appendChild(block);
+
+    markUnsaved();
+
+    wikipediaPanel.classList.remove("visible");
+}
+
+
+wikipediaSearchBtn.addEventListener(
+    "click",
+    searchWikipediaArticles
+);
+
+
+wikipediaSearch.addEventListener("keydown",event => {
+    if(event.key === "Enter"){
+        searchWikipediaArticles();
+    }
+});
+
 
 console.log("Knowledge Workspace editor started!");
