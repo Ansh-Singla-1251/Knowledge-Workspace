@@ -50,10 +50,10 @@ export function renderMindMap(){
         const folders = workspaceFolders.get(workspace.id) || [];
 
         const folderRegions = folders.map(folder => {
-            const documents = state.documents.filter(
-                document => document.folderId === folder.id
+           const documents = state.documents.filter(
+                document =>
+                    document.folderId === folder.id &&!document.deletedAt
             );
-
             const documentWidthTotal =
                 documents.length > 0
                     ? documents.length * documentWidth +
@@ -131,13 +131,15 @@ export function renderMindMap(){
         });
     });
 
-    state.documents.forEach(document => {
+    state.documents.filter(document => !document.deletedAt).forEach(document => {
         const parent = nodeMap.get(document.folderId);
 
         if(!parent) return;
 
         const folderDocuments = state.documents.filter(
-            item => item.folderId === document.folderId
+            item =>
+                item.folderId === document.folderId &&
+                !item.deletedAt
         );
 
         const index = folderDocuments.indexOf(document);
@@ -172,7 +174,7 @@ export function renderMindMap(){
         linesGroup.appendChild(line);
     });
 
-    state.documents.forEach(document => {
+    state.documents.filter(document => !document.deletedAt).forEach(document => {
         const parent = nodeMap.get(document.folderId);
         const child = nodeMap.get(document.id);
 
@@ -183,7 +185,7 @@ export function renderMindMap(){
         linesGroup.appendChild(line);
     });
 
-    state.documents.forEach(document => {
+    state.documents.filter(document => !document.deletedAt).forEach(document => {
         if(!Array.isArray(document.links)){
             return;
         }
@@ -534,3 +536,15 @@ function fitMindMap(svg,viewport){
 
     updateViewport(viewport);
 }
+
+window.addEventListener("knowledgeWorkspaceUpdate",() => {
+    renderMindMap();
+});
+
+window.addEventListener("storage",event => {
+    if(event.key !== "knowledgeWorkspaceUpdate"){
+        return;
+    }
+
+    renderMindMap();
+});

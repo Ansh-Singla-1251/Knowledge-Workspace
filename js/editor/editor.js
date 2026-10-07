@@ -8,6 +8,8 @@ import {
     searchWikipedia,
     getWikipediaSummary
 } from "../wikipedia/wikipedia.js";
+import {addAttachment,deleteAttachment, getDocumentAttachments} from "../document/attachment.js";
+import {showToast} from "../utils/toast.js";
 
 const documentTitle = document.getElementById("documentTitle");
 const editorBlocks = document.getElementById("editorBlocks");
@@ -16,14 +18,56 @@ const blockMenu = document.getElementById("blockMenu");
 const saveIndicator = document.getElementById("saveIndicator");
 const linkedDocuments = document.getElementById("linkedDocuments");
 const backlinkDocuments = document.getElementById("backlinkDocuments");
-
+const attachmentList =document.getElementById("attachmentList");
 const wikipediaToggle = document.getElementById("wikipediaToggle");
 const wikipediaPanel = document.getElementById("wikipediaPanel");
 const wikipediaClose = document.getElementById("wikipediaClose");
 const wikipediaSearch = document.getElementById("wikipediaSearch");
 const wikipediaSearchBtn = document.getElementById("wikipediaSearchBtn");
 const wikipediaResults = document.getElementById("wikipediaResults");
+const attachFileBtn = document.getElementById("attachFileBtn");
+const attachmentInput = document.getElementById("attachmentInput");
 
+if(attachFileBtn && attachmentInput){
+
+    attachFileBtn.addEventListener(
+        "click",
+        () => {
+            attachmentInput.click();
+        }
+    );
+
+    attachmentInput.addEventListener(
+        "change",
+        event => {
+
+           const files =
+                Array.from(event.target.files);
+
+            if(
+                files.length === 0 ||
+                !state.currentDocumentId
+            ){
+                return;
+            }
+
+            files.forEach(file => {
+                addAttachment(
+                    state.currentDocumentId,
+                    file
+                );
+            });
+
+            renderAttachments();
+
+            showToast(
+                `${files.length} file${files.length > 1 ? "s" : ""} attached.`
+            );
+
+            event.target.value = "";
+                    }
+                );
+            }
 let saveTimer = null;
 
 const params = new URLSearchParams(window.location.search);
@@ -40,7 +84,7 @@ async function initializeEditor(){
         state.workspaces = savedState.workspaces;
         state.folders = savedState.folders;
         state.documents = savedState.documents;
-
+        state.attachments = savedState.attachments || [];
         currentDocument = state.documents.find(
             doc => doc.id === documentId
         );
@@ -54,6 +98,7 @@ async function initializeEditor(){
         state.currentDocumentId = documentId;
 
         loadDocument(currentDocument);
+        renderAttachments();
         renderConnections();
     }catch(error){
         console.error("Failed to initialize editor:",error);
@@ -65,8 +110,7 @@ async function initializeEditor(){
 initializeEditor();
 
 
-const linkDocumentBtn =
-    document.getElementById("linkDocumentBtn");
+const linkDocumentBtn =document.getElementById("linkDocumentBtn");
 
 linkDocumentBtn.addEventListener("click",async () => {
     if(!currentDocument){
@@ -112,6 +156,100 @@ linkDocumentBtn.addEventListener("click",async () => {
     );
 });
 
+function renderAttachments(){
+    attachmentList.innerHTML = "";
+
+    if(!currentDocument){
+        return;
+    }
+
+    const attachments =
+        currentDocument.attachments || [];
+
+    if(attachments.length === 0){
+        attachmentList.innerHTML = `
+            <p class="attachment-empty">
+                No attachments yet.
+            </p>
+        `;
+
+        return;
+    }
+
+    attachments.forEach(attachmentId => {
+
+        const attachment =
+            (state.attachments || []).find(
+                item => item.id === attachmentId
+            );
+
+        if(!attachment){
+            return;
+        }
+
+        const element =
+            document.createElement("div");
+
+        element.className = "attachment-item";
+
+        const size =
+            (attachment.size / 1024).toFixed(1);
+
+        element.innerHTML = `
+            <div class="attachment-info">
+
+                <strong>
+                    ${attachment.name}
+                </strong>
+
+                <span>
+                    ${size} KB
+                </span>
+
+            </div>
+
+            <div class="attachment-actions">
+
+                <button
+                    class="attachment-open-btn"
+                    type="button"
+                >
+                    Open
+                </button>
+
+                <button
+                    class="attachment-remove-btn"
+                    type="button"
+                    data-id="${attachment.id}"
+                >
+                    Remove
+                </button>
+
+            </div>
+        `;
+        element
+            .querySelector(".attachment-open-btn")
+            .addEventListener("click",() => {
+
+                const url =
+                    URL.createObjectURL(attachment.data);
+
+                window.open(url,"_blank");
+
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                },1000);
+            });
+        element
+            .querySelector(".attachment-remove-btn")
+            .addEventListener("click",() => {
+                deleteAttachment(attachment.id);
+                renderAttachments();
+            });
+
+        attachmentList.appendChild(element);
+    });
+}
 
 function loadDocument(doc){
     documentTitle.value = doc.title;

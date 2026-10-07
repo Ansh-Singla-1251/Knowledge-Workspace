@@ -26,6 +26,53 @@ export function renderDocuments(folderId,documents = null){
     documents = documents || getFolderDocuments(folderId);
 
     if(documents.length === 0){
+        let title = "No documents yet";
+        let description =
+            "Create a document in this folder to start building your knowledge workspace.";
+        let buttonText = "Create your first document";
+        let showButton = true;
+
+        const allDocuments = state.documents.filter(
+            document => !document.deletedAt
+        );
+
+        const searchInput =
+            document.getElementById("documentSearch");
+
+        const searchQuery = searchInput
+            ? searchInput.value.trim()
+            : "";
+
+        const showingFavorites =
+            window.showingFavorites === true;
+
+        const showingRecent =
+            window.showingRecent === true;
+
+        if(searchQuery){
+            title = "No documents found";
+            description =
+                `No documents match "${searchQuery}". Try a different search.`;
+            buttonText = "Clear search";
+        }else if(showingFavorites){
+            title = "No favorite documents";
+            description =
+                "Star documents you use often and they will appear here.";
+            buttonText = "";
+            showButton = false;
+        }else if(showingRecent){
+            title = "No recent documents";
+            description =
+                "Documents you open will appear here.";
+            buttonText = "";
+            showButton = false;
+        }else if(folderId){
+            title = "No documents yet";
+            description =
+                "Create a document in this folder to start building your knowledge workspace.";
+            buttonText = "Create your first document";
+        }
+
         documentGrid.innerHTML = `
 
             <div class="empty-state">
@@ -35,37 +82,58 @@ export function renderDocuments(folderId,documents = null){
                 </div>
 
                 <h3>
-                    No documents yet
+                    ${title}
                 </h3>
 
                 <p>
-                    Create a document in this folder to start building
-                    your knowledge workspace.
+                    ${description}
                 </p>
 
-                <button
-                    id="emptyCreateDocumentBtn"
-                    class="primary-btn"
-                    type="button"
-                >
-                    Create your first document
-                </button>
+                ${
+                    showButton
+                        ? `
+                            <button
+                                id="emptyCreateDocumentBtn"
+                                class="primary-btn"
+                                type="button"
+                            >
+                                ${buttonText}
+                            </button>
+                        `
+                        : ""
+                }
 
             </div>
 
         `;
 
-        const createButton =
-            document.getElementById("emptyCreateDocumentBtn");
+        if(searchQuery){
+            const clearButton =
+                document.getElementById("emptyCreateDocumentBtn");
 
-        createButton.addEventListener("click",() => {
-            const mainCreateButton =
-                document.getElementById("createDocumentBtn");
-
-            if(mainCreateButton){
-                mainCreateButton.click();
+            if(clearButton){
+                clearButton.addEventListener("click",() => {
+                    searchInput.value = "";
+                    searchInput.dispatchEvent(new Event("input"));
+                });
             }
-        });
+
+            return;
+        }
+
+        if(showButton){
+            const createButton =
+                document.getElementById("emptyCreateDocumentBtn");
+
+            createButton.addEventListener("click",() => {
+                const mainCreateButton =
+                    document.getElementById("createDocumentBtn");
+
+                if(mainCreateButton){
+                    mainCreateButton.click();
+                }
+            });
+        }
 
         return;
     }

@@ -1203,18 +1203,60 @@ svg {
 
 #favoritesFilterBtn,
 #recentFilterBtn {
-    background: transparent;
     margin-bottom: 22px;
+    padding: 5px 8px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #4A4742;
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease;
 }
 
 #favoritesFilterBtn:hover,
 #recentFilterBtn:hover {
-    background: rgba(23,23,23,0.05);
+    background: #F1EEE6;
+    color: #171717;
+    transform: translateY(-2px);
 }
 
 #favoritesFilterBtn.active,
 #recentFilterBtn.active {
-    background: #171717;
-    color: #FFFFFF;
     border-color: #171717;
+    background: #171717;
+    color: #F7F4ED;
+    box-shadow: 0 4px 0 #D4CEC2;
+    transform: translateY(-2px);
+}
+
+#favoritesFilterBtn.active:hover,
+#recentFilterBtn.active:hover {
+    background: #292929;
+    border-color: #292929;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 0 #D4CEC2;
+}
+
+#favoritesFilterBtn:active,
+#recentFilterBtn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+.filter-instruction {
+    margin-bottom: 22px;
+    padding: 5px 8px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #4A4742;
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease,
+        border-color 180ms ease,
+        color 180ms ease,
+        box-shadow 180ms ease;
 }

@@ -25,7 +25,11 @@ const closeButton =
     document.getElementById("modalClose");
 
 
-function closeModal(value = null) {
+function closeModal(value = null){
+
+    if(!backdrop){
+        return;
+    }
 
     backdrop.classList.remove("visible");
 
@@ -36,11 +40,11 @@ function closeModal(value = null) {
 
     setTimeout(() => {
 
-        if (currentResolver) {
+        if(currentResolver){
             currentResolver(value);
         }
 
-    }, 200);
+    },200);
 
 }
 
@@ -51,7 +55,18 @@ function openModal({
     value = "",
     confirmText = "Confirm",
     danger = false
-}) {
+}){
+
+    if(
+        !backdrop ||
+        !modal ||
+        !title ||
+        !description ||
+        !input ||
+        !confirmButton
+    ){
+        return Promise.resolve(null);
+    }
 
     input.style.display = "";
 
@@ -91,7 +106,7 @@ function openModal({
         input.focus();
         input.select();
 
-    }, 50);
+    },50);
 
     return new Promise(resolve => {
 
@@ -102,14 +117,25 @@ function openModal({
 }
 
 
-export function requestInput(options) {
+export function requestInput(options){
 
     return openModal(options);
 
 }
 
 
-export function requestConfirmation(options) {
+export function requestConfirmation(options){
+
+    if(
+        !backdrop ||
+        !modal ||
+        !title ||
+        !description ||
+        !input ||
+        !confirmButton
+    ){
+        return Promise.resolve(false);
+    }
 
     input.value = "";
     input.style.display = "none";
@@ -148,91 +174,105 @@ export function requestConfirmation(options) {
 }
 
 
-export function resetModalInput() {
+export function resetModalInput(){
+
+    if(!input){
+        return;
+    }
 
     input.style.display = "";
 
 }
 
 
-confirmButton.addEventListener(
-    "click",
-    () => {
+if(confirmButton){
+    confirmButton.addEventListener(
+        "click",
+        () => {
 
-        if (input.style.display === "none") {
+            if(input.style.display === "none"){
 
-            closeModal(true);
+                closeModal(true);
 
-            return;
+                return;
+            }
+
+            const value =
+                input.value.trim();
+
+            if(!value){
+
+                input.focus();
+
+                return;
+            }
+
+            closeModal(value);
+
         }
-
-        const value =
-            input.value.trim();
-
-        if (!value) {
-
-            input.focus();
-
-            return;
-        }
-
-        closeModal(value);
-
-    }
-);
+    );
+}
 
 
-cancelButton.addEventListener(
-    "click",
-    () => {
+if(cancelButton){
+    cancelButton.addEventListener(
+        "click",
+        () => {
 
-        input.style.display = "";
+            input.style.display = "";
 
-        closeModal(null);
-
-    }
-);
-
-
-closeButton.addEventListener(
-    "click",
-    () => {
-
-        input.style.display = "";
-
-        closeModal(null);
-
-    }
-);
-
-
-backdrop.addEventListener(
-    "click",
-    event => {
-
-        if (event.target !== backdrop) {
-            return;
-        }
-
-        input.style.display = "";
-
-        closeModal(null);
-
-    }
-);
-
-
-input.addEventListener(
-    "keydown",
-    event => {
-
-        if (event.key === "Enter") {
-            confirmButton.click();
-        }
-
-        if (event.key === "Escape") {
             closeModal(null);
-        }
 
-    }
-);
+        }
+    );
+}
+
+
+if(closeButton){
+    closeButton.addEventListener(
+        "click",
+        () => {
+
+            input.style.display = "";
+
+            closeModal(null);
+
+        }
+    );
+}
+
+
+if(backdrop){
+    backdrop.addEventListener(
+        "click",
+        event => {
+
+            if(event.target !== backdrop){
+                return;
+            }
+
+            input.style.display = "";
+
+            closeModal(null);
+
+        }
+    );
+}
+
+
+if(input){
+    input.addEventListener(
+        "keydown",
+        event => {
+
+            if(event.key === "Enter"){
+                confirmButton.click();
+            }
+
+            if(event.key === "Escape"){
+                closeModal(null);
+            }
+
+        }
+    );
+}

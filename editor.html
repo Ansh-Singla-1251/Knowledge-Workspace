@@ -55,6 +55,20 @@
                 Link document
             </button>
 
+            <button
+                id="attachFileBtn"
+                class="editor-link-btn"
+                type="button"
+            >
+                Attach file
+            </button>
+
+            <input
+                id="attachmentInput"
+                type="file"
+                multiple hidden
+            >
+
         </div>
 
         <div class="editor-status">
@@ -107,6 +121,19 @@
 
             </section>
 
+            <section class="document-attachments">
+
+                <div class="attachment-header">
+                    <h3>Attachments</h3>
+
+                    <span>
+                        Files attached to this document
+                    </span>
+                </div>
+
+                <div id="attachmentList"></div>
+
+            </section>
 
             <div class="add-block-wrapper">
 

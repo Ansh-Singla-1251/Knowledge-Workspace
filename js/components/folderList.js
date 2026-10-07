@@ -25,224 +25,313 @@ import {
     showToast
 } from "../utils/toast.js";
 
-
-export function renderFolders(
-    workspaceId
-) {
+export function renderFolders(workspaceId){
 
     const folderList =
-        document.getElementById(
-            "folderList"
-        );
+        document.getElementById("folderList");
 
-    folderList.innerHTML =
-        "";
+    folderList.innerHTML = "";
 
-
-    if (!workspaceId) {
+    if(!workspaceId){
         return;
     }
 
-
     const folders =
-        getWorkspaceFolders(
-            workspaceId
-        );
+        getWorkspaceFolders(workspaceId);
 
+    if(folders.length === 0){
+        state.currentFolderId = null;
 
-    folders.forEach(
-        folder => {
+        const documentGrid =
+            document.getElementById("documentGrid");
 
-            const folderElement =
-                document.createElement(
-                    "div"
-                );
+        documentGrid.innerHTML = `
 
+            <div class="empty-state">
 
-            folderElement.classList.add(
-                "folder-item"
+                <div class="empty-icon">
+                    ${icons.folder}
+                </div>
+
+                <h3>
+                    No folders yet
+                </h3>
+
+                <p>
+                    Create your first folder to start organizing this workspace.
+                </p>
+
+                <button
+                    id="emptyCreateFolderBtn"
+                    class="primary-btn"
+                    type="button"
+                >
+                    Create your first folder
+                </button>
+
+            </div>
+
+        `;
+
+        const createFolderButton =
+            document.getElementById(
+                "emptyCreateFolderBtn"
             );
 
+        createFolderButton.addEventListener(
+            "click",
+            () => {
+                document
+                    .getElementById("addFolderBtn")
+                    .click();
+            }
+        );
 
-            folderElement.dataset.id =
-                folder.id;
+        return;
+    }
 
+    if(!state.currentFolderId){
 
-            folderElement.innerHTML = `
+        const documentGrid =
+            document.getElementById("documentGrid");
 
-                <span class="folder-icon">
-                    ${icons.folder}
-                </span>
+        documentGrid.innerHTML = folders.map(folder => {
 
-                <span class="folder-name">
-                    ${folder.name}
-                </span>
+            const documentCount =
+                state.documents.filter(
+                    document =>
+                        document.folderId === folder.id &&
+                        !document.deletedAt
+                ).length;
 
-                <button
-                    class="rename-folder-btn"
-                    title="Rename folder"
+            return `
+
+                <div
+                    class="document-card folder-card"
+                    data-folder-id="${folder.id}"
                 >
-                    ${icons.edit}
-                </button>
 
-                <button
-                    class="delete-folder-btn"
-                    title="Delete folder"
-                >
-                    ${icons.trash}
-                </button>
+                    <div class="document-card-top">
+
+                        <div class="document-icon">
+                            ${icons.folder}
+                        </div>
+
+                    </div>
+
+                    <div class="document-info">
+
+                        <h3>
+                            ${folder.name}
+                        </h3>
+
+                        <p>
+                            ${
+                                documentCount === 1
+                                    ? "1 document"
+                                    : `${documentCount} documents`
+                            }
+                        </p>
+
+                    </div>
+
+                </div>
 
             `;
 
+        }).join("");
 
-            if (
-                folder.id ===
-                state.currentFolderId
-            ) {
+        documentGrid
+            .querySelectorAll(".folder-card")
+            .forEach(card => {
 
-                folderElement.classList.add(
-                    "active"
+                card.addEventListener(
+                    "click",
+                    () => {
+                    selectFolder(card.dataset.folderId);
+
+                    window.dispatchEvent(
+                        new CustomEvent("folderSelectionChanged")
+                    );
+
+                    renderFolders(state.currentWorkspaceId);
+                    renderDocuments(state.currentFolderId);
+
+                    }
+                );
+
+            });
+    }
+
+    folders.forEach(folder => {
+
+        const folderElement =
+            document.createElement("div");
+
+        folderElement.classList.add(
+            "folder-item"
+        );
+
+        folderElement.dataset.id =
+            folder.id;
+
+        folderElement.innerHTML = `
+
+            <span class="folder-icon">
+                ${icons.folder}
+            </span>
+
+            <span class="folder-name">
+                ${folder.name}
+            </span>
+
+            <button
+                class="rename-folder-btn"
+                title="Rename folder"
+                type="button"
+            >
+                ${icons.edit}
+            </button>
+
+            <button
+                class="delete-folder-btn"
+                title="Delete folder"
+                type="button"
+            >
+                ${icons.trash}
+            </button>
+
+        `;
+
+        if(
+            folder.id ===
+            state.currentFolderId
+        ){
+            folderElement.classList.add(
+                "active"
+            );
+        }
+
+        folderElement.addEventListener(
+            "click",
+            () => {
+
+               selectFolder(folder.id);
+
+                window.dispatchEvent(
+                    new CustomEvent("folderSelectionChanged")
+                );
+
+                renderFolders(state.currentWorkspaceId);
+                renderDocuments(state.currentFolderId);
+
+            }
+        );
+
+        const renameButton =
+            folderElement.querySelector(
+                ".rename-folder-btn"
+            );
+
+        renameButton.addEventListener(
+            "click",
+            async event => {
+
+                event.stopPropagation();
+
+                resetModalInput();
+
+                const newName =
+                    await requestInput({
+
+                        titleText:
+                            "Rename folder",
+
+                        descriptionText:
+                            "Choose a clear name for this folder.",
+
+                        value:
+                            folder.name,
+
+                        confirmText:
+                            "Save"
+
+                    });
+
+                if(!newName){
+                    return;
+                }
+
+                updateFolder(
+                    folder.id,
+                    newName
+                );
+
+                renderFolders(
+                    state.currentWorkspaceId
+                );
+
+                showToast(
+                    "Folder renamed."
                 );
 
             }
+        );
 
-
-            folderElement.addEventListener(
-                "click",
-                () => {
-
-                    selectFolder(
-                        folder.id
-                    );
-
-                    renderFolders(
-                        state.currentWorkspaceId
-                    );
-
-                    renderDocuments(
-                        state.currentFolderId
-                    );
-
-                }
+        const deleteButton =
+            folderElement.querySelector(
+                ".delete-folder-btn"
             );
 
+        deleteButton.addEventListener(
+            "click",
+            async event => {
 
-            const renameButton =
-                folderElement.querySelector(
-                    ".rename-folder-btn"
+                event.stopPropagation();
+
+                const confirmed =
+                    await requestConfirmation({
+
+                        titleText:
+                            "Delete folder?",
+
+                        descriptionText:
+                            `Deleting "${folder.name}" will also remove all documents inside it.`,
+
+                        confirmText:
+                            "Delete folder"
+
+                    });
+
+                if(!confirmed){
+                    return;
+                }
+
+                deleteFolder(
+                    folder.id
                 );
 
-
-            renameButton.addEventListener(
-                "click",
-                async event => {
-
-                    event.stopPropagation();
-
-                    resetModalInput();
-
-                    const newName =
-                        await requestInput({
-
-                            titleText:
-                                "Rename folder",
-
-                            descriptionText:
-                                "Choose a clear name for this folder.",
-
-                            value:
-                                folder.name,
-
-                            confirmText:
-                                "Save"
-
-                        });
-
-
-                    if (!newName) {
-                        return;
-                    }
-
-
-                    updateFolder(
-                        folder.id,
-                        newName
-                    );
-
-
-                    renderFolders(
-                        state.currentWorkspaceId
-                    );
-
-
-                    showToast(
-                        "Folder renamed."
-                    );
-
+                if(
+                    state.currentFolderId ===
+                    folder.id
+                ){
+                    state.currentFolderId = null;
                 }
-            );
 
-
-            const deleteButton =
-                folderElement.querySelector(
-                    ".delete-folder-btn"
+                renderFolders(
+                    state.currentWorkspaceId
                 );
 
+                showToast(
+                    "Folder deleted."
+                );
 
-            deleteButton.addEventListener(
-                "click",
-                async event => {
+            }
+        );
 
-                    event.stopPropagation();
+        folderList.appendChild(
+            folderElement
+        );
 
-                    const confirmed =
-                        await requestConfirmation({
-
-                            titleText:
-                                "Delete folder?",
-
-                            descriptionText:
-                                `Deleting "${folder.name}" will also remove all documents inside it.`,
-
-                            confirmText:
-                                "Delete folder"
-
-                        });
-
-
-                    if (!confirmed) {
-                        return;
-                    }
-
-
-                    deleteFolder(
-                        folder.id
-                    );
-
-
-                    renderFolders(
-                        state.currentWorkspaceId
-                    );
-
-
-                    document.getElementById(
-                        "documentGrid"
-                    ).innerHTML = "";
-
-
-                    showToast(
-                        "Folder deleted."
-                    );
-
-                }
-            );
-
-
-            folderList.appendChild(
-                folderElement
-            );
-
-        }
-    );
-
+    });
 }

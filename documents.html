@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+    <title>Documents — Knowledge Workspace</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/documents.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <aside class="sidebar">
+
+            <div class="brand">
+                <h2>Knowledge</h2>
+                <span>Workspace</span>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <button
+                    class="nav-item"
+                    type="button"
+                    onclick="window.location.href='index.html'"
+                >
+                    <span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M3 10.5L12 3l9 7.5"></path>
+                            <path d="M5.5 9.5V21h13V9.5"></path>
+                            <path d="M9.5 21v-6h5v6"></path>
+                        </svg>
+                    </span>
+                    Dashboard
+                </button>
+
+                <button
+                    class="nav-item active"
+                    type="button"
+                >
+                    <span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6 3h9l4 4v14H6z"></path>
+                            <path d="M14 3v5h5"></path>
+                            <path d="M9 13h6"></path>
+                            <path d="M9 17h6"></path>
+                        </svg>
+                    </span>
+                    Documents
+                </button>
+
+                <button
+                    class="nav-item"
+                    type="button"
+                >
+                    <span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="12" cy="5" r="2"></circle>
+                            <circle cx="6" cy="17" r="2"></circle>
+                            <circle cx="18" cy="17" r="2"></circle>
+                            <path d="M12 7v5"></path>
+                            <path d="M12 12L6 15"></path>
+                            <path d="M12 12l6 3"></path>
+                        </svg>
+                    </span>
+                    Mind Maps
+                </button>
+
+                <button
+                    class="nav-item"
+                    type="button"
+                >
+                    <span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"></path>
+                        </svg>
+                    </span>
+                    Favorites
+                </button>
+
+                <button
+                    class="nav-item"
+                    type="button"
+                    onclick="window.location.href='trash.html'"
+                >
+                    <span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 7h14"></path>
+                            <path d="M9 7V4h6v3"></path>
+                            <path d="M7 7l1 14h8l1-14"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                        </svg>
+                    </span>
+                    Trash
+                </button>
+
+            </nav>
+
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+
+                <div class="search-container">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search your knowledge..."
+                        autocomplete="off"
+                    >
+                </div>
+
+                <div class="topbar-actions">
+
+                    <button
+                        id="themeToggle"
+                        title="Toggle theme"
+                        type="button"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5z"></path>
+                        </svg>
+                    </button>
+
+                    <button
+                        id="profileBtn"
+                        title="Profile"
+                        type="button"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="12"
+                                cy="8"
+                                r="3.5"
+                            ></circle>
+                            <path d="M5 20a7 7 0 0 1 14 0"></path>
+                        </svg>
+                    </button>
+
+                </div>
+
+            </header>
+
+            <section class="documents-page">
+
+                <div class="documents-header">
+
+                    <div>
+                        <div class="documents-eyebrow">
+                            YOUR KNOWLEDGE LIBRARY
+                        </div>
+
+                        <h1>
+                            Document Library
+                        </h1>
+
+                        <p>
+                            &nbsp; Everything you've created, in one place.
+                        </p>
+                    </div>
+
+                    <div class="documents-count">
+                        <strong id="documentCount">0</strong>
+                        <span>documents</span>
+                    </div>
+                    <button
+                        id="exportWorkspaceBtn"
+                        class="secondary-btn"
+                        type="button"
+                    >
+                        Export Workspace
+                    </button>
+
+                    <button
+                        id="importWorkspaceBtn"
+                        class="secondary-btn"
+                        type="button"
+                    >
+                        Import Workspace
+                    </button>
+
+                    <input
+                        id="importWorkspaceInput"
+                        type="file"
+                        accept=".json,application/json"
+                        hidden
+                    >
+                </div>
+
+                <div class="documents-controls">
+
+                    <div class="document-library-search">
+
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle
+                                cx="11"
+                                cy="11"
+                                r="6"
+                            ></circle>
+                            <path d="M16 16l5 5"></path>
+                        </svg>
+
+                        <input
+                            type="text"
+                            id="librarySearch"
+                            placeholder="Search documents..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                    <div class="document-filters">
+
+                        <button
+                            class="library-filter active"
+                            type="button"
+                        >
+                            All
+                        </button>
+
+                        <button
+                            class="library-filter"
+                            type="button"
+                        >
+                            Favorites
+                        </button>
+
+                        <button
+                            class="library-filter"
+                            type="button"
+                        >
+                            Recent
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="document-library-grid" id="documentLibraryGrid">
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+    <script
+        type="module"
+        src="js/app.js"
+    ></script>
+</body>
+</html>

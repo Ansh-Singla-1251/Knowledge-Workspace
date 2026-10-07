@@ -1,5 +1,5 @@
 const DB_NAME = "knowledgeWorkspaceDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let db = null;
 
@@ -20,6 +20,12 @@ export function openDatabase() {
 
             if(!database.objectStoreNames.contains("documents")){
                 database.createObjectStore("documents",{keyPath:"id"});
+            }
+            if(!database.objectStoreNames.contains("attachments")){
+                database.createObjectStore(
+                    "attachments",
+                    {keyPath:"id"}
+                );
             }
         };
 
@@ -43,18 +49,18 @@ export function saveState(state) {
         }
 
         const transaction = db.transaction(
-            ["workspaces","folders","documents"],
+            ["workspaces","folders","documents","attachments"],
             "readwrite"
         );
 
         const workspaces = transaction.objectStore("workspaces");
         const folders = transaction.objectStore("folders");
         const documents = transaction.objectStore("documents");
-
+        const attachments =transaction.objectStore("attachments");
         workspaces.clear();
         folders.clear();
         documents.clear();
-
+        attachments.clear();
         state.workspaces.forEach(workspace => {
             workspaces.put(workspace);
         });
@@ -66,7 +72,9 @@ export function saveState(state) {
         state.documents.forEach(document => {
             documents.put(document);
         });
-
+        state.attachments.forEach(attachment => {
+            attachments.put(attachment);
+        });
         transaction.oncomplete = () => {
             resolve();
         };
@@ -85,19 +93,20 @@ export function loadState() {
         }
 
         const transaction = db.transaction(
-            ["workspaces","folders","documents"],
+            ["workspaces","folders","documents","attachments"],
             "readonly"
         );
 
         const workspaces = transaction.objectStore("workspaces").getAll();
         const folders = transaction.objectStore("folders").getAll();
         const documents = transaction.objectStore("documents").getAll();
-
+        const attachments =transaction.objectStore("attachments").getAll();
         transaction.oncomplete = () => {
             resolve({
                 workspaces: workspaces.result,
                 folders: folders.result,
-                documents: documents.result
+                documents: documents.result,
+                attachments: attachments.result
             });
         };
 
