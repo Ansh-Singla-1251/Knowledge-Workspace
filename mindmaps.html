@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
-    <title>Trash — Knowledge Workspace</title>
-
+    <title>Mind Maps — Knowledge Workspace</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
@@ -42,7 +38,6 @@
                             <path d="M9.5 21v-6h5v6"></path>
                         </svg>
                     </span>
-
                     Dashboard
                 </button>
 
@@ -59,14 +54,12 @@
                             <path d="M9 17h6"></path>
                         </svg>
                     </span>
-
                     Documents
                 </button>
 
                 <button
-                    class="nav-item"
+                    class="nav-item active"
                     type="button"
-                    onclick="window.location.href='mindmaps.html'"
                 >
                     <span>
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -78,7 +71,6 @@
                             <path d="M12 12l6 3"></path>
                         </svg>
                     </span>
-
                     Mind Maps
                 </button>
 
@@ -92,13 +84,13 @@
                             <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"></path>
                         </svg>
                     </span>
-
                     Favorites
                 </button>
 
                 <button
-                    class="nav-item active"
+                    class="nav-item"
                     type="button"
+                    onclick="window.location.href='trash.html'"
                 >
                     <span>
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -109,13 +101,10 @@
                             <path d="M14 11v6"></path>
                         </svg>
                     </span>
-
                     Trash
                 </button>
 
             </nav>
-
-            
 
         </aside>
 
@@ -126,7 +115,9 @@
                 <div class="search-container">
                     <input
                         type="text"
+                        id="searchInput"
                         placeholder="Search your knowledge..."
+                        autocomplete="off"
                     >
                 </div>
 
@@ -135,6 +126,7 @@
                     <button
                         id="themeToggle"
                         title="Toggle theme"
+                        type="button"
                     >
                         <svg
                             viewBox="0 0 24 24"
@@ -147,6 +139,7 @@
                     <button
                         id="profileBtn"
                         title="Profile"
+                        type="button"
                     >
                         <svg
                             viewBox="0 0 24 24"
@@ -157,7 +150,6 @@
                                 cy="8"
                                 r="3.5"
                             ></circle>
-
                             <path d="M5 20a7 7 0 0 1 14 0"></path>
                         </svg>
                     </button>
@@ -168,101 +160,51 @@
 
             <section class="documents-page">
 
-                <header class="documents-header">
+                <div class="documents-header">
 
                     <div>
-
-                        <p class="documents-eyebrow">
-                            DOCUMENT MANAGEMENT
-                        </p>
+                        <div class="documents-eyebrow">
+                            VISUALIZE YOUR KNOWLEDGE
+                        </div>
 
                         <h1>
-                            Trash
+                            Mind Maps
                         </h1>
 
                         <p>
-                            Deleted documents are kept here before permanent removal.
-                        </p>
-                        <p class="trash-retention-note">
-                            Items in Trash are automatically removed after 30 days.
+                            Explore documents built around connected ideas.
                         </p>
                     </div>
 
-                </header>
+                    <div class="documents-count">
+                        <strong id="documentCount">0</strong>
+                        <span>mind maps</span>
+                    </div>
 
-                <section>
+                </div>
 
-                    <div
-                        id="trashGrid"
-                        class="document-grid"
-                    ></div>
-
-                </section>
+                <div
+                    class="document-library-grid"
+                    id="mindMapsGrid"
+                >
+                </div>
 
             </section>
 
         </main>
 
     </div>
-    <div
-        id="modalBackdrop"
-        class="modal-backdrop"
-    >
-        <div
-            id="modal"
-            class="modal"
-            role="dialog"
-            aria-modal="true"
-        >
-            <div class="modal-header">
-                <h3 id="modalTitle"></h3>
-                <button
-                    id="modalClose"
-                    type="button"
-                    aria-label="Close"
-                >
-                    ×
-                </button>
-            </div>
 
-            <p id="modalDescription"></p>
-
-            <input
-                id="modalInput"
-                type="text"
-                autocomplete="off"
-            >
-
-            <div class="modal-actions">
-                <button
-                    id="modalCancel"
-                    class="secondary-btn"
-                    type="button"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    id="modalConfirm"
-                    class="primary-btn"
-                    type="button"
-                >
-                    Confirm
-                </button>
-            </div>
-        </div>
-    </div>
-    <div
-        id="toastContainer"
-        class="toast-container"
-    ></div>
     <script type="module">
         import {requireLogin} from "./js/auth/auth.js";
 
         requireLogin();
     </script>
-    <script type="module" src="js/app.js"></script>
+
+    <script
+        type="module"
+        src="js/app.js"
+    ></script>
 
 </body>
-
 </html>

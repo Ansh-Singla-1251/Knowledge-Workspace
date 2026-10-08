@@ -36,40 +36,7 @@
             <span>Workspace</span>
         </a>
 
-        <div class="editor-actions">
-
-            <button
-                id="wikipediaToggle"
-                class="editor-research-btn"
-                type="button"
-            >
-                <span>⌕</span>
-                Research
-            </button>
-
-            <button
-                id="linkDocumentBtn"
-                class="editor-link-btn"
-                type="button"
-            >
-                Link document
-            </button>
-
-            <button
-                id="attachFileBtn"
-                class="editor-link-btn"
-                type="button"
-            >
-                Attach file
-            </button>
-
-            <input
-                id="attachmentInput"
-                type="file"
-                multiple hidden
-            >
-
-        </div>
+        
 
         <div class="editor-status">
 
@@ -107,34 +74,6 @@
 
             </div>
 
-            <section class="document-connections">
-
-                <div class="connection-section">
-                    <h3>Linked documents</h3>
-                    <div id="linkedDocuments"></div>
-                </div>
-
-                <div class="connection-section">
-                    <h3>Backlinks</h3>
-                    <div id="backlinkDocuments"></div>
-                </div>
-
-            </section>
-
-            <section class="document-attachments">
-
-                <div class="attachment-header">
-                    <h3>Attachments</h3>
-
-                    <span>
-                        Files attached to this document
-                    </span>
-                </div>
-
-                <div id="attachmentList"></div>
-
-            </section>
-
             <div class="add-block-wrapper">
 
                 <button
@@ -154,81 +93,139 @@
                     <span>Add block</span>
 
                 </button>
+            </div>
+            <div id="blockMenu" class="block-menu">
 
+    <button
+        type="button"
+        data-block-type="paragraph"
+    >
+        <strong>¶</strong>
+        <span>
+            <b>Paragraph</b>
+            <small>Normal text</small>
+        </span>
+    </button>
 
-                <div
-                    id="blockMenu"
-                    class="block-menu"
-                >
+    <button
+        type="button"
+        data-block-type="heading"
+    >
+        <strong>H</strong>
+        <span>
+            <b>Heading</b>
+            <small>Section title</small>
+        </span>
+    </button>
 
-                    <button
-                        type="button"
-                        data-block-type="paragraph"
-                    >
-                        <strong>¶</strong>
-                        <span>
-                            <b>Paragraph</b>
-                            <small>Write normal text</small>
-                        </span>
-                    </button>
+    <button
+        type="button"
+        data-block-type="bullet"
+    >
+        <strong>•</strong>
+        <span>
+            <b>Bullet</b>
+            <small>List item</small>
+        </span>
+    </button>
 
+    <button
+        type="button"
+        data-block-type="mindmap"
+    >
+        <strong>◇</strong>
+        <span>
+            <b>Mind Map</b>
+            <small>Visual connections</small>
+        </span>
+    </button>
 
-                    <button
-                        type="button"
-                        data-block-type="heading"
-                    >
-                        <strong>H</strong>
-                        <span>
-                            <b>Heading</b>
-                            <small>Create a section heading</small>
-                        </span>
-                    </button>
+    <button
+        type="button"
+        data-block-type="code"
+    >
+        <strong>&lt;/&gt;</strong>
+        <span>
+            <b>Code</b>
+            <small>Code block</small>
+        </span>
+    </button>
 
+</div>
+            <section class="document-attachments">
 
-                    <button
-                        type="button"
-                        data-block-type="bullet"
-                    >
-                        <strong>•</strong>
-                        <span>
-                            <b>Bullet List</b>
-                            <small>Create a list item</small>
-                        </span>
-                    </button>
+                <div class="attachment-header">
+                    <h3>Attachments</h3>
 
-
-                    <button
-                        type="button"
-                        data-block-type="mindmap"
-                    >
-                        <strong>✦</strong>
-                        <span>
-                            <b>Mind Map</b>
-                            <small>Create a visual mind map</small>
-                        </span>
-                    </button>
-
-
-                    <button
-                        type="button"
-                        data-block-type="code"
-                    >
-                        <strong>&lt;/&gt;</strong>
-                        <span>
-                            <b>Code</b>
-                            <small>Add a code block</small>
-                        </span>
-                    </button>
-
+                    <span>
+                        Files attached to this document
+                    </span>
                 </div>
 
-            </div>
+                <div id="attachmentList"></div>
+
+            </section>
+
+           
+            <section class="document-connections">
+
+                <div class="connection-section">
+                    <h3>Linked documents</h3>
+                    <div id="linkedDocuments"></div>
+                </div>
+
+                <div class="connection-section">
+                    <h3>Backlinks</h3>
+                    <div id="backlinkDocuments"></div>
+                </div>
+
+            </section>
 
         </div>
 
     </main>
 
+<div class="editor-floating-actions">
 
+    <span class="editor-floating-label">
+        TOOLS
+    </span>
+
+    <button
+        id="wikipediaToggle"
+        class="editor-research-btn"
+        type="button"
+    >
+        <span>⌕</span>
+        Research
+    </button>
+
+    <button
+        id="linkDocumentBtn"
+        class="editor-link-btn"
+        type="button"
+    >
+        <span>↗</span>
+        Link document
+    </button>
+
+    <button
+        id="attachFileBtn"
+        class="editor-link-btn"
+        type="button"
+    >
+        <span>□</span>
+        Attach file
+    </button>
+
+    <input
+        id="attachmentInput"
+        type="file"
+        multiple
+        hidden
+    >
+
+</div>
     <aside
         id="wikipediaPanel"
         class="wikipedia-panel"
@@ -339,7 +336,11 @@
         </div>
 
     </div>
+    <script type="module">
+        import {requireLogin} from "./js/auth/auth.js";
 
+        requireLogin();
+    </script>
 
     <script
         type="module"

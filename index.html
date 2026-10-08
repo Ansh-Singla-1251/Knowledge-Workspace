@@ -22,7 +22,7 @@
     <div class="app">
 
         <aside class="sidebar">
-
+            <div id="sidebarToggleContainer"></div>
             <div class="brand">
                 <h2>Knowledge</h2>
                 <span>Workspace</span>
@@ -30,7 +30,7 @@
 
 
             <nav class="sidebar-nav">
-
+                
                 <button class="nav-item active">
 
                     <span>
@@ -65,8 +65,11 @@
                 </button>
 
 
-                <button class="nav-item">
-
+               <button
+                    class="nav-item"
+                    type="button"
+                    onclick="window.location.href='mindmaps.html'"
+                >
                     <span>
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <circle cx="12" cy="5" r="2"></circle>
@@ -77,22 +80,20 @@
                             <path d="M12 12l6 3"></path>
                         </svg>
                     </span>
-
                     Mind Maps
-
                 </button>
 
-
-                <button class="nav-item">
-
+                <button
+                    class="nav-item"
+                    type="button"
+                    onclick="window.location.href='favorites.html'"
+                >
                     <span>
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                             <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.9z"></path>
                         </svg>
                     </span>
-
                     Favorites
-
                 </button>
 
 
@@ -164,7 +165,17 @@
 
 
             <header class="topbar">
-
+                
+                <button
+                        id="sidebarToggleBtn"
+                        class="sidebar-toggle-btn"
+                        type="button"
+                        aria-label="Open sidebar"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                </button>
                 <div class="search-container">
 
                     <input
@@ -174,9 +185,8 @@
                     >
 
                 </div>
-
-
                 <div class="topbar-actions">
+                    
 
                     <button
                         id="themeToggle"
@@ -195,7 +205,7 @@
 
                     <button
                         id="profileBtn"
-                        title="Profile"
+                        title="Logout"
                     >
 
                         <svg
@@ -277,7 +287,11 @@
                 <div class="quick-actions">
 
 
-                    <button class="quick-card">
+                    <button
+                        id="quickNewDocument"
+                        class="quick-card"
+                        type="button"
+                    >
 
                         <span>
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -295,7 +309,11 @@
                     </button>
 
 
-                    <button class="quick-card">
+                   <button
+                        id="quickNewMindMap"
+                        class="quick-card"
+                        type="button"
+                    >
 
                         <span>
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -315,7 +333,11 @@
                     </button>
 
 
-                    <button class="quick-card">
+                    <button
+                        id="quickNewFolder"
+                        class="quick-card"
+                        type="button"
+                    >
 
                         <span>
                             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -521,6 +543,11 @@
         class="toast-container"
     ></div>
 
+    <script type="module">
+        import {requireLogin} from "./js/auth/auth.js";
+
+        requireLogin();
+    </script>
 
     <script
         type="module"

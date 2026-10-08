@@ -72,7 +72,7 @@ let saveTimer = null;
 
 const params = new URLSearchParams(window.location.search);
 const documentId = params.get("id");
-
+const editorMode = params.get("mode");
 let currentDocument = null;
 
 async function initializeEditor(){
@@ -100,6 +100,13 @@ async function initializeEditor(){
         loadDocument(currentDocument);
         renderAttachments();
         renderConnections();
+        if(editorMode === "mindmap"){
+    createMindMapBlock(
+        editorBlocks,
+        "",
+        markUnsaved
+    );
+}
     }catch(error){
         console.error("Failed to initialize editor:",error);
         documentTitle.value = "Unable to load document";
@@ -154,6 +161,8 @@ linkDocumentBtn.addEventListener("click",async () => {
         currentDocument.id,
         targetDocument.id
     );
+    renderConnections();
+    markUnsaved();
 });
 
 function renderAttachments(){
@@ -373,6 +382,23 @@ function createBlock(type,content = "",focus = true,id = null){
 
     if(type === "mindmap"){
         createMindMapBlock(block,content,markUnsaved);
+
+        const deleteMindMapButton =
+            document.createElement("button");
+
+        deleteMindMapButton.type = "button";
+        deleteMindMapButton.className = "mindmap-delete-btn";
+        deleteMindMapButton.textContent = "Delete Mind Map";
+
+        deleteMindMapButton.addEventListener("click",() => {
+            block.remove();
+            markUnsaved();
+            showToast("Mind map deleted.");
+        });
+
+        block.querySelector(".mindmap-editor-toolbar")
+            ?.appendChild(deleteMindMapButton);
+
         editorBlocks.appendChild(block);
         return block;
     }

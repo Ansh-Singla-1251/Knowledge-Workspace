@@ -1,19 +1,28 @@
 import state from "../state/store.js";
 import {icons} from "../utils/icons.js";
-import {loadState} from "../storage/database.js";
+import {loadState,openDatabase} from "../storage/database.js";
 
 let currentFilter = "all";
 let currentQuery = "";
 
-export function renderLibraryDocuments(documents){
+export function renderLibraryDocuments(
+    documents,
+    gridId = "documentLibraryGrid"
+){
     const grid =
-        document.getElementById("documentLibraryGrid");
+        document.getElementById(gridId);
 
     const count =
         document.getElementById("documentCount");
 
-    count.textContent =
-        documents.length;
+    if(!grid){
+        return;
+    }
+
+    if(count){
+        count.textContent =
+            documents.length;
+    }
 
     grid.innerHTML = "";
 
@@ -140,17 +149,18 @@ function getFilteredDocuments(){
     }
 
     if(currentFilter === "recent"){
-        documents = [...state.documents]
-            .filter(
-                document =>
-                    document.lastOpenedAt &&
-                    !document.deletedAt
-            )
-            .sort(
-                (a,b) =>
-                    new Date(b.lastOpenedAt) -
-                    new Date(a.lastOpenedAt)
-            );
+        documents =
+            [...state.documents]
+                .filter(
+                    document =>
+                        document.lastOpenedAt &&
+                        !document.deletedAt
+                )
+                .sort(
+                    (a,b) =>
+                        new Date(b.lastOpenedAt) -
+                        new Date(a.lastOpenedAt)
+                );
     }
 
     if(currentQuery){
@@ -188,6 +198,10 @@ function setupFilters(){
 
     const searchInput =
         document.getElementById("librarySearch");
+
+    if(!searchInput){
+        return;
+    }
 
     searchInput.addEventListener(
         "input",
@@ -240,6 +254,7 @@ function setupFilters(){
 }
 
 async function refreshLibraryState(){
+    await openDatabase();
     const savedState =
         await loadState();
 
@@ -258,6 +273,8 @@ async function refreshLibraryState(){
 if(document.getElementById("documentLibraryGrid")){
 
     setupFilters();
+
+    refreshLibraryState();
 
     window.addEventListener(
         "knowledgeWorkspaceUpdate",

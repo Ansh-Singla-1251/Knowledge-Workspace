@@ -1,7 +1,6 @@
 import state from "./state/store.js";
-
 import {createWorkspace} from "./workspace/workspace.js";
-import {renderWorkspaces} from "./components/workspaceList.js";
+import {renderWorkspaces,selectWorkspaceUI} from "./components/workspaceList.js";
 import {createFolder} from "./folder/folder.js";
 import {renderFolders} from "./components/folderList.js";
 import {createDocument,cleanupTrash} from "./document/document.js";
@@ -16,7 +15,8 @@ import {renderLibraryDocuments} from "./documents/documents.js";
 import {renderTrash} from "./trash/trash.js";
 import {exportWorkspace} from "./storage/export.js";
 import {importWorkspace} from "./storage/import.js";
-import {cleanupTrash} from "./document/document.js";
+import {logoutUser} from "./auth/auth.js";
+
 console.log("Knowledge Workspace started!");
 
 const isDocumentsPage =
@@ -24,7 +24,12 @@ const isDocumentsPage =
 
 const isTrashPage =
     document.getElementById("trashGrid") !== null;
-    
+const isMindMapsPage =
+    document.getElementById("mindMapsGrid") !== null;
+
+const isFavoritesPage =
+    document.getElementById("favoritesGrid") !== null;
+
 async function initializeApp(){
     try{
         await openDatabase();
@@ -48,11 +53,11 @@ async function initializeApp(){
 
             await saveState(state);
         }else{
-            state.currentWorkspaceId = state.workspaces[0]?.id || null;
+            state.currentWorkspaceId =
+                state.workspaces[0]?.id || null;
         }
 
         if(isDocumentsPage){
-
             renderLibraryDocuments(
                 state.documents.filter(
                     document =>
@@ -69,6 +74,7 @@ async function initializeApp(){
                     exportWorkspace
                 );
             }
+
             const importWorkspaceBtn =
                 document.getElementById("importWorkspaceBtn");
 
@@ -89,7 +95,8 @@ async function initializeApp(){
                 importWorkspaceInput.addEventListener(
                     "change",
                     event => {
-                        const file = event.target.files[0];
+                        const file =
+                            event.target.files[0];
 
                         if(!file){
                             return;
@@ -100,23 +107,62 @@ async function initializeApp(){
                     }
                 );
             }
+
+            return;
+        }
+        if(isMindMapsPage){
+            renderLibraryDocuments(
+                state.documents.filter(
+                    document =>
+                        !document.deletedAt &&
+                        document.blocks?.some(
+                            block =>
+                                block.type === "mindmap"
+                        )
+                ),
+                "mindMapsGrid"
+            );
+
             return;
         }
 
+        if(isFavoritesPage){
+            renderLibraryDocuments(
+                state.documents.filter(
+                    document =>
+                        !document.deletedAt &&
+                        document.favorite === true
+                ),
+                "favoritesGrid"
+            );
+            return;
+        }
         if(isTrashPage){
             renderTrash();
             return;
         }
 
-
         renderWorkspaces(state.workspaces);
+
+        state.currentFolderId = null;
+        state.currentDocumentId = null;
+
         renderFolders(state.currentWorkspaceId);
+
+        window.dispatchEvent(
+            new CustomEvent("folderSelectionChanged")
+        );
+
+        renderDocuments(state.currentFolderId);
         renderMindMap();
     }
     catch(error){
-        console.error("Failed to initialize application:",error);
+        console.error(
+            "Failed to initialize application:",
+            error
+        );
 
-        if(!isDocumentsPage && !isTrashPage){
+        if( !isDocumentsPage && !isMindMapsPage && !isFavoritesPage && !isTrashPage){
             showToast(
                 "Unable to load saved data.",
                 "error"
@@ -125,88 +171,272 @@ async function initializeApp(){
     }
 }
 
+function showWorkspaceFolders(){
+    const documentGrid =
+        document.getElementById("documentGrid");
+
+    if(!documentGrid){
+        return;
+    }
+
+    const folders =
+        state.folders.filter(
+            folder =>
+                folder.workspaceId ===
+                state.currentWorkspaceId
+        );
+
+    documentGrid.innerHTML = "";
+
+    if(folders.length === 0){
+        documentGrid.innerHTML = `
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    📁
+                </div>
+
+                <h3>
+                    No folders yet
+                </h3>
+
+                <p>
+                    Create a folder to start organizing your knowledge.
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+    folders.forEach(folder => {
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "document-card";
+
+        card.innerHTML = `
+            <div class="document-card-content">
+
+                <div class="empty-icon">
+                    📁
+                </div>
+
+                <h3>
+                    ${folder.name}
+                </h3>
+
+                <p>
+                    Open folder to view documents.
+                </p>
+
+            </div>
+        `;
+
+        card.addEventListener(
+            "click",
+            () => {
+                state.currentFolderId =
+                    folder.id;
+
+                renderDocuments(
+                    folder.id
+                );
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        "folderSelectionChanged"
+                    )
+                );
+            }
+        );
+
+        documentGrid.appendChild(card);
+    });
+}
+
+const sidebarToggleBtn =
+    document.getElementById("sidebarToggleBtn");
+
+const sidebar =
+    document.querySelector(".sidebar");
+
+const sidebarToggleContainer =
+    document.getElementById("sidebarToggleContainer");
+
+const topbar =
+    document.querySelector(".topbar");
+
+if(
+    sidebarToggleBtn &&
+    sidebar &&
+    sidebarToggleContainer &&
+    topbar
+){
+    sidebarToggleBtn.addEventListener(
+        "click",
+        () => {
+            const isOpen =
+                sidebar.classList.toggle("mobile-open");
+
+            if(isOpen){
+                sidebarToggleContainer.appendChild(
+                    sidebarToggleBtn
+                );
+
+                sidebarToggleBtn.setAttribute(
+                    "aria-label",
+                    "Close sidebar"
+                );
+            }else{
+                topbar.insertBefore(
+                    sidebarToggleBtn,
+                    topbar.firstElementChild
+                );
+
+                sidebarToggleBtn.setAttribute(
+                    "aria-label",
+                    "Open sidebar"
+                );
+            }
+        }
+    );
+}
+
 initializeApp();
+
 window.addEventListener(
     "knowledgeWorkspaceUpdate",
-    () => {
-        if(isDocumentsPage || isTrashPage){
+    event => {
+        if(isDocumentsPage || isMindMapsPage || isFavoritesPage || isTrashPage){
             return;
         }
 
-        renderDocuments(
-            state.currentFolderId
-        );
+        const folderId =
+            event.detail?.folderId ||
+            state.currentFolderId;
+
+        if(folderId){
+            state.currentFolderId = folderId;
+
+            renderFolders(
+                state.currentWorkspaceId
+            );
+
+            renderDocuments(folderId);
+        }else{
+            renderFolders(
+                state.currentWorkspaceId
+            );
+        }
 
         renderMindMap();
     }
 );
-if(!isDocumentsPage && !isTrashPage){
 
-document.getElementById("addWorkspaceBtn").addEventListener("click",async () => {
-    resetModalInput();
+if(!isDocumentsPage && !isTrashPage && !isMindMapsPage && !isFavoritesPage){
 
-    const name = await requestInput({
-        titleText:"Create workspace",
-        descriptionText:"Create a space for a project, subject, or area of knowledge.",
-        confirmText:"Create"
-    });
+    document.getElementById(
+        "addWorkspaceBtn"
+    ).addEventListener(
+        "click",
+        async () => {
+            resetModalInput();
 
-    if(!name) return;
+            const name = await requestInput({
+                titleText:"Create workspace",
+                descriptionText:
+                    "Create a space for a project, subject, or area of knowledge.",
+                confirmText:"Create"
+            });
 
-    const workspace = createWorkspace(name);
+            if(!name) return;
 
-    state.currentWorkspaceId = workspace.id;
-    state.currentFolderId = null;
-    state.currentDocumentId = null;
+            const workspace =
+                createWorkspace(name);
 
-    renderWorkspaces(state.workspaces);
-    renderFolders(state.currentWorkspaceId);
+            state.currentWorkspaceId =
+                workspace.id;
 
-    document.getElementById("documentGrid").innerHTML = `
-        <div class="empty-state">
+            state.currentFolderId = null;
+            state.currentDocumentId = null;
 
-            <div class="empty-icon">
-                ${icons.document}
-            </div>
+            renderWorkspaces(
+                state.workspaces
+            );
 
-            <h3>
-                No folder selected
-            </h3>
+            renderFolders(
+                state.currentWorkspaceId
+            );
 
-            <p>
-                Create a folder in this workspace to start organizing your documents.
-            </p>
+            document.getElementById(
+                "documentGrid"
+            ).innerHTML = `
+                <div class="empty-state">
 
-        </div>
-    `;
+                    <div class="empty-icon">
+                        ${icons.document}
+                    </div>
 
-    showToast("Workspace created.");
-});
+                    <h3>
+                        No folder selected
+                    </h3>
 
-document.getElementById("addFolderBtn").addEventListener("click",async () => {
-    if(!state.currentWorkspaceId){
-        showToast("Select a workspace first.","error");
-        return;
-    }
+                    <p>
+                        Create a folder in this workspace to start organizing your documents.
+                    </p>
 
-    resetModalInput();
+                </div>
+            `;
 
-    const name = await requestInput({
-        titleText:"Create folder",
-        descriptionText:"Organize related documents together.",
-        confirmText:"Create"
-    });
+            showToast(
+                "Workspace created."
+            );
+        }
+    );
 
-    if(!name) return;
+    document.getElementById(
+        "addFolderBtn"
+    ).addEventListener(
+        "click",
+        async () => {
+            if(!state.currentWorkspaceId){
+                showToast(
+                    "Select a workspace first.",
+                    "error"
+                );
+                return;
+            }
 
-    createFolder(name,state.currentWorkspaceId);
+            resetModalInput();
 
-    renderFolders(state.currentWorkspaceId);
+            const name = await requestInput({
+                titleText:"Create folder",
+                descriptionText:
+                    "Organize related documents together.",
+                confirmText:"Create"
+            });
 
-    showToast("Folder created.");
-});
+            if(!name) return;
 
-async function createNewDocument(){
+            createFolder(
+                name,
+                state.currentWorkspaceId
+            );
+
+            renderFolders(
+                state.currentWorkspaceId
+            );
+
+            showToast(
+                "Folder created."
+            );
+        }
+    );
+
+    async function createNewDocument(openMindMap = false){
     if(!state.currentWorkspaceId){
         showToast("Select a workspace first.","error");
         return;
@@ -220,14 +450,16 @@ async function createNewDocument(){
     resetModalInput();
 
     const title = await requestInput({
-        titleText:"New document",
-        descriptionText:"Start a new piece of knowledge.",
+        titleText:openMindMap ? "New mind map" : "New document",
+        descriptionText:openMindMap
+            ? "Create a document for your new mind map."
+            : "Start a new piece of knowledge.",
         confirmText:"Create"
     });
 
     if(!title) return;
 
-    createDocument(
+    const newDocument = createDocument(
         title,
         state.currentWorkspaceId,
         state.currentFolderId
@@ -235,134 +467,251 @@ async function createNewDocument(){
 
     renderDocuments(state.currentFolderId);
 
-    showToast("Document created.");
+    window.location.href =
+        `editor.html?id=${encodeURIComponent(newDocument.id)}${
+            openMindMap ? "&mode=mindmap" : ""
+        }`;
 }
 
-document.getElementById("createDocumentBtn").addEventListener("click",createNewDocument);
-
-const documentSearch = document.getElementById("documentSearch");
-
-documentSearch.addEventListener("input",event => {
-    const query = event.target.value.trim().toLowerCase();
-
-    const documents = state.documents.filter(document =>
-        !document.deletedAt &&
-        (
-            document.title.toLowerCase().includes(query) ||
-            document.tags.some(tag =>
-                tag.toLowerCase().includes(query)
-            )
-        )
-    );
-
-    renderDocuments(state.currentFolderId,documents);
-});
-
-window.showingFavorites = false;
-window.showingRecent = false;
-
-const favoritesFilterBtn =
-    document.getElementById("favoritesFilterBtn");
-
-const recentFilterBtn =
-    document.getElementById("recentFilterBtn");
-
-const documentFilterInstruction =
     document.getElementById(
-        "documentFilterInstruction"
+        "createDocumentBtn"
+    ).addEventListener(
+        "click",
+        createNewDocument
     );
 
-function updateDocumentFilters(){
+    /* Quick Actions */
+const quickNewDocument =
+    document.getElementById("quickNewDocument");
 
-    const hasFolder =
-        state.currentFolderId !== null;
+const quickNewFolder =
+    document.getElementById("quickNewFolder");
 
-    favoritesFilterBtn.style.display =
-        hasFolder
-            ? ""
-            : "none";
+const quickNewMindMap =
+    document.getElementById("quickNewMindMap");
 
-    recentFilterBtn.style.display =
-        hasFolder
-            ? ""
-            : "none";
-
-    documentFilterInstruction.style.display =
-        hasFolder
-            ? "none"
-            : "inline-block";
-}
-
-updateDocumentFilters();
-window.addEventListener(
-    "folderSelectionChanged",
-    updateDocumentFilters
-);
-favoritesFilterBtn.addEventListener("click",() => {
-    window.showingFavorites = !window.showingFavorites;
-    window.showingRecent = false;
-
-    recentFilterBtn.classList.remove("active");
-
-    if(window.showingFavorites){
-        const favoriteDocuments = state.documents.filter(
-            document =>
-                document.folderId === state.currentFolderId &&
-                document.favorite &&
-                !document.deletedAt
-        );
-
-        renderDocuments(
-            state.currentFolderId,
-            favoriteDocuments
-        );
-
-        favoritesFilterBtn.classList.add("active");
-    }else{
-        renderDocuments(state.currentFolderId);
-
-        favoritesFilterBtn.classList.remove("active");
-    }
-});
-
-recentFilterBtn.addEventListener("click",() => {
-    window.showingRecent = !window.showingRecent;
-    window.showingFavorites = false;
-
-    favoritesFilterBtn.classList.remove("active");
-
-    if(window.showingRecent){
-        const recentDocuments = [...state.documents].filter(
-            document =>
-                document.folderId === state.currentFolderId &&
-                document.lastOpenedAt &&
-                !document.deletedAt
-        );
-
-        renderDocuments(
-            state.currentFolderId,
-            recentDocuments
-        );
-
-        recentFilterBtn.classList.add("active");
-    }else{
-        renderDocuments(state.currentFolderId);
-
-        recentFilterBtn.classList.remove("active");
-    }
-});
-
-const viewAllDocumentsBtn =
-    document.getElementById("viewAllDocumentsBtn");
-
-if(viewAllDocumentsBtn){
-    viewAllDocumentsBtn.addEventListener(
+if(quickNewDocument){
+    quickNewDocument.addEventListener(
         "click",
         () => {
-            window.location.href =
-                "documents.html";
+            createNewDocument(false);
         }
     );
 }
 
+if(quickNewFolder){
+    quickNewFolder.addEventListener(
+        "click",
+        () => {
+            document.getElementById(
+                "addFolderBtn"
+            ).click();
+        }
+    );
+}
+
+if(quickNewMindMap){
+    quickNewMindMap.addEventListener(
+        "click",
+        () => {
+            createNewDocument(true);
+        }
+    );
+}
+
+    const documentSearch =
+        document.getElementById(
+            "documentSearch"
+        );
+
+    documentSearch.addEventListener(
+        "input",
+        event => {
+            const query =
+                event.target.value
+                    .trim()
+                    .toLowerCase();
+
+            const documents =
+                state.documents.filter(
+                    document =>
+                        !document.deletedAt &&
+                        (
+                            document.title
+                                .toLowerCase()
+                                .includes(query) ||
+                            document.tags.some(
+                                tag =>
+                                    tag
+                                        .toLowerCase()
+                                        .includes(query)
+                            )
+                        )
+                );
+
+            renderDocuments(
+                state.currentFolderId,
+                documents
+            );
+        }
+    );
+
+    window.showingFavorites = false;
+    window.showingRecent = false;
+
+    const favoritesFilterBtn =
+        document.getElementById(
+            "favoritesFilterBtn"
+        );
+
+    const recentFilterBtn =
+        document.getElementById(
+            "recentFilterBtn"
+        );
+
+    const documentFilterInstruction =
+        document.getElementById(
+            "documentFilterInstruction"
+        );
+
+    function updateDocumentFilters(){
+        const hasFolder =
+            state.currentFolderId !== null;
+
+        favoritesFilterBtn.style.display =
+            hasFolder
+                ? ""
+                : "none";
+
+        recentFilterBtn.style.display =
+            hasFolder
+                ? ""
+                : "none";
+
+        documentFilterInstruction.style.display =
+            hasFolder
+                ? "none"
+                : "inline-block";
+    }
+
+    updateDocumentFilters();
+
+    window.addEventListener(
+        "folderSelectionChanged",
+        updateDocumentFilters
+    );
+
+    favoritesFilterBtn.addEventListener(
+        "click",
+        () => {
+            window.showingFavorites =
+                !window.showingFavorites;
+
+            window.showingRecent = false;
+
+            recentFilterBtn.classList.remove(
+                "active"
+            );
+
+            if(window.showingFavorites){
+                const favoriteDocuments =
+                    state.documents.filter(
+                        document =>
+                            document.folderId ===
+                                state.currentFolderId &&
+                            document.favorite &&
+                            !document.deletedAt
+                    );
+
+                renderDocuments(
+                    state.currentFolderId,
+                    favoriteDocuments
+                );
+
+                favoritesFilterBtn.classList.add(
+                    "active"
+                );
+            }else{
+                renderDocuments(
+                    state.currentFolderId
+                );
+
+                favoritesFilterBtn.classList.remove(
+                    "active"
+                );
+            }
+        }
+    );
+
+    recentFilterBtn.addEventListener(
+        "click",
+        () => {
+            window.showingRecent =
+                !window.showingRecent;
+
+            window.showingFavorites = false;
+
+            favoritesFilterBtn.classList.remove(
+                "active"
+            );
+
+            if(window.showingRecent){
+                const recentDocuments =
+                    [...state.documents].filter(
+                        document =>
+                            document.folderId ===
+                                state.currentFolderId &&
+                            document.lastOpenedAt &&
+                            !document.deletedAt
+                    );
+
+                renderDocuments(
+                    state.currentFolderId,
+                    recentDocuments
+                );
+
+                recentFilterBtn.classList.add(
+                    "active"
+                );
+            }else{
+                renderDocuments(
+                    state.currentFolderId
+                );
+
+                recentFilterBtn.classList.remove(
+                    "active"
+                );
+            }
+        }
+    );
+
+    const viewAllDocumentsBtn =
+        document.getElementById(
+            "viewAllDocumentsBtn"
+        );
+
+    if(viewAllDocumentsBtn){
+        viewAllDocumentsBtn.addEventListener(
+            "click",
+            () => {
+                window.location.href =
+                    "documents.html";
+            }
+        );
+    }
+}
+
+const profileBtn =
+    document.getElementById("profileBtn");
+
+if(profileBtn){
+    profileBtn.addEventListener(
+        "click",
+        () => {
+            logoutUser();
+
+            window.location.href =
+                "login.html";
+        }
+    );
 }

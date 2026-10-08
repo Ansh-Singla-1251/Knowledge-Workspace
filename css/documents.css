@@ -14,9 +14,17 @@
     margin-bottom: 36px;
 }
 
+.documents-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-shrink: 0;
+    padding-top: 4px;
+}
+
 .documents-eyebrow {
     margin-bottom: 12px;
-    color: #FF6B5E;
+    color: #E85D4A;
     font-size: 11px;
     font-weight: 800;
     letter-spacing: 0.16em;
@@ -28,30 +36,64 @@
     line-height: 0.95;
     font-weight: 850;
     letter-spacing: -0.055em;
+    color: #252525;
 }
 
 .documents-header p {
     margin-top: 16px;
-    color: #6B6B6B;
+    color: #716B64;
     font-size: 15px;
     line-height: 1.6;
 }
+
 .documents-count {
     display: flex;
     align-items: baseline;
     gap: 6px;
     padding-bottom: 4px;
     color: #77736C;
+    white-space: nowrap;
 }
 
 .documents-count strong {
-    color: #171717;
+    color: #252525;
     font-size: 22px;
     font-weight: 800;
 }
 
 .documents-count span {
     font-size: 11px;
+}
+
+.workspace-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.workspace-actions .secondary-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid #E5DDD2;
+    border-radius: 9px;
+    background: #FFFDF8;
+    color: #252525;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform 180ms ease,
+        background-color 180ms ease,
+        border-color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+.workspace-actions .secondary-btn:hover {
+    border-color: #E85D4A;
+    background: #FBE3DC;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 14px rgba(37,37,37,0.07);
 }
 
 .documents-controls {
@@ -69,17 +111,17 @@
     align-items: center;
     gap: 9px;
     padding: 10px 13px;
-    border: 1px solid rgba(23,23,23,0.1);
+    border: 1px solid #E5DDD2;
     border-radius: 9px;
-    background: #FFFFFF;
+    background: #FFFDF8;
     transition:
         border-color 180ms ease,
         box-shadow 180ms ease;
 }
 
 .document-library-search:focus-within {
-    border-color: rgba(23,23,23,0.3);
-    box-shadow: 0 6px 18px rgba(23,23,23,0.06);
+    border-color: #E85D4A;
+    box-shadow: 0 6px 18px rgba(232,93,74,0.08);
 }
 
 .document-library-search svg {
@@ -97,7 +139,7 @@
     border: none;
     outline: none;
     background: transparent;
-    color: #171717;
+    color: #252525;
     font-family: inherit;
     font-size: 13px;
 }
@@ -118,7 +160,7 @@
     border: 1px solid transparent;
     border-radius: 9px;
     background: transparent;
-    color: #4A4742;
+    color: #4A4540;
     font-family: inherit;
     font-size: 12px;
     font-weight: 700;
@@ -132,17 +174,22 @@
 }
 
 .library-filter:hover {
-    background: #F1EEE6;
-    color: #171717;
+    background: #F1EAE2;
+    color: #252525;
     transform: translateY(-2px);
 }
 
 .library-filter.active {
-    border-color: #171717;
-    background: #171717;
-    color: #F7F4ED;
-    box-shadow: 0 3px 0 #D4CEC2;
+    border-color: #252525;
+    background: #252525;
+    color: #FFFDF8;
+    box-shadow: 0 3px 0 #D8CEC1;
     transform: translateY(-2px);
+}
+
+.library-filter.active:hover {
+    background: #E85D4A;
+    border-color: #E85D4A;
 }
 
 .document-library-grid {
@@ -157,9 +204,10 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
-    border: 1px solid #E3DED4;
+    border: 1px solid #E5DDD2;
     border-radius: 14px;
-    background: #FFFFFF;
+    background: #FFFDF8;
+    color: #252525;
     cursor: pointer;
     overflow: hidden;
     animation: scaleIn 300ms ease both;
@@ -177,7 +225,7 @@
     top: 16px;
     right: 16px;
     border-radius: 50%;
-    background: #FF6B5E;
+    background: #E85D4A;
 }
 
 .library-document-card::before {
@@ -187,7 +235,7 @@
     bottom: 0;
     width: 100%;
     height: 3px;
-    background: #E3DED4;
+    background: #E5DDD2;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 250ms ease;
@@ -195,8 +243,8 @@
 
 .library-document-card:hover {
     transform: translateY(-5px) rotate(-0.25deg);
-    border-color: #171717;
-    box-shadow: 0 12px 26px rgba(23,23,23,0.08);
+    border-color: #E85D4A;
+    box-shadow: 0 12px 26px rgba(37,37,37,0.08);
 }
 
 .library-document-card:hover::before {
@@ -215,16 +263,19 @@
     justify-content: center;
     margin-bottom: 20px;
     border-radius: 10px;
-    background: #F0ECFF;
+    background: #FBE3DC;
+    color: #E85D4A;
     font-size: 19px;
 }
 
 .library-document-card:nth-child(3n + 2) .library-document-icon {
-    background: #FFF0EC;
+    background: #FBE3DC;
+    color: #C94738;
 }
 
 .library-document-card:nth-child(3n) .library-document-icon {
-    background: #E4F5F1;
+    background: #F3E3DC;
+    color: #D9826B;
 }
 
 .library-document-icon svg {
@@ -254,7 +305,7 @@
     gap: 3px;
     margin-top: auto;
     padding-top: 17px;
-    color: #6B6B6B;
+    color: #6B665F;
     font-size: 10px;
 }
 
@@ -273,16 +324,39 @@
 .library-document-tags span {
     padding: 3px 6px;
     border-radius: 5px;
-    background: #F1EEE6;
-    color: #666;
+    background: #F1EAE2;
+    color: #66605A;
     font-size: 9px;
     font-weight: 700;
+}
+
+.trash-retention-note {
+    margin-top: 8px;
+    color: #817C73;
+    font-size: 13px;
+}
+
+@media (max-width: 900px) {
+    .documents-page {
+        padding-left: 28px;
+        padding-right: 28px;
+    }
 }
 
 @media (max-width: 850px) {
     .documents-header {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .documents-header-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .workspace-actions {
+        flex-wrap: wrap;
     }
 
     .documents-controls {
@@ -308,14 +382,13 @@
         font-size: 42px;
     }
 
+    .documents-header-actions {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
     .document-library-grid {
         grid-template-columns: 1fr;
-    }
-}
-@media (max-width: 900px) {
-    .documents-page {
-        padding-left: 28px;
-        padding-right: 28px;
     }
 }
 
@@ -324,10 +397,12 @@
         padding-left: 18px;
         padding-right: 18px;
     }
-}
 
-.trash-retention-note {
-    margin-top: 8px;
-    color: #817C73;
-    font-size: 13px;
+    .workspace-actions {
+        width: 100%;
+    }
+
+    .workspace-actions .secondary-btn {
+        flex: 1;
+    }
 }

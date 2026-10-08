@@ -17,7 +17,6 @@ export function renderMindMap(){
     );
 
     svg.classList.add("mindmap-svg");
-
     svg.setAttribute("viewBox","0 0 720 480");
 
     const viewport = document.createElementNS(
@@ -31,8 +30,8 @@ export function renderMindMap(){
     const nodeMap = new Map();
 
     const folderWidth = 180;
-    const documentWidth = 120;
-    const documentGap = 50;
+    const documentWidth = 150;
+    const documentGap = 24;
     const folderGap = 80;
     const levelGap = 120;
 
@@ -50,27 +49,35 @@ export function renderMindMap(){
         const folders = workspaceFolders.get(workspace.id) || [];
 
         const folderRegions = folders.map(folder => {
-           const documents = state.documents.filter(
+            const documents = state.documents.filter(
                 document =>
-                    document.folderId === folder.id &&!document.deletedAt
+                    document.folderId === folder.id &&
+                    !document.deletedAt
             );
+
             const documentWidthTotal =
                 documents.length > 0
                     ? documents.length * documentWidth +
-                    (documents.length - 1) * documentGap
+                      (documents.length - 1) * documentGap
                     : folderWidth;
 
             return {
                 folder,
                 documents,
-                width: Math.max(folderWidth,documentWidthTotal)
+                width: Math.max(
+                    folderWidth,
+                    documentWidthTotal
+                )
             };
         });
 
         const totalWidth = folderRegions.reduce(
             (sum,region) => sum + region.width,
             0
-        ) + Math.max(0,folderRegions.length - 1) * folderGap;
+        ) + Math.max(
+            0,
+            folderRegions.length - 1
+        ) * folderGap;
 
         let currentX = 360 - totalWidth / 2;
 
@@ -83,10 +90,14 @@ export function renderMindMap(){
         };
 
         nodes.push(workspaceNode);
-        nodeMap.set(workspaceNode.id,workspaceNode);
+        nodeMap.set(
+            workspaceNode.id,
+            workspaceNode
+        );
 
         folderRegions.forEach(region => {
             const folder = region.folder;
+
             const folderCenterX =
                 currentX + region.width / 2;
 
@@ -99,7 +110,10 @@ export function renderMindMap(){
             };
 
             nodes.push(folderNode);
-            nodeMap.set(folderNode.id,folderNode);
+            nodeMap.set(
+                folderNode.id,
+                folderNode
+            );
 
             const documents = region.documents;
 
@@ -109,7 +123,8 @@ export function renderMindMap(){
                     (documents.length - 1) * documentGap;
 
                 let documentX =
-                    folderCenterX - documentsTotalWidth / 2;
+                    folderCenterX -
+                    documentsTotalWidth / 2;
 
                 documents.forEach(document => {
                     const documentNode = {
@@ -121,40 +136,20 @@ export function renderMindMap(){
                     };
 
                     nodes.push(documentNode);
-                    nodeMap.set(documentNode.id,documentNode);
+                    nodeMap.set(
+                        documentNode.id,
+                        documentNode
+                    );
 
-                    documentX += documentWidth + documentGap;
+                    documentX +=
+                        documentWidth + documentGap;
                 });
             }
 
-            currentX += region.width + folderGap;
+            currentX +=
+                region.width + folderGap;
         });
     });
-
-    state.documents.filter(document => !document.deletedAt).forEach(document => {
-        const parent = nodeMap.get(document.folderId);
-
-        if(!parent) return;
-
-        const folderDocuments = state.documents.filter(
-            item =>
-                item.folderId === document.folderId &&
-                !item.deletedAt
-        );
-
-        const index = folderDocuments.indexOf(document);
-
-        const node = {
-            id: document.id,
-            type: "document",
-            label: document.title,
-            x: parent.x - ((folderDocuments.length - 1) * 85) + index * 170,
-            y: parent.y + 105
-        };
-
-        nodes.push(node);
-        nodeMap.set(node.id,node);
-    });  
 
     const linesGroup = document.createElementNS(
         "http://www.w3.org/2000/svg",
@@ -164,45 +159,65 @@ export function renderMindMap(){
     linesGroup.classList.add("mindmap-lines");
 
     state.folders.forEach(folder => {
-        const parent = nodeMap.get(folder.workspaceId);
-        const child = nodeMap.get(folder.id);
+        const parent =
+            nodeMap.get(folder.workspaceId);
+
+        const child =
+            nodeMap.get(folder.id);
 
         if(!parent || !child) return;
 
-        const line = createConnection(parent,child);
+        const line =
+            createConnection(parent,child);
 
         linesGroup.appendChild(line);
     });
 
-    state.documents.filter(document => !document.deletedAt).forEach(document => {
-        const parent = nodeMap.get(document.folderId);
-        const child = nodeMap.get(document.id);
+    state.documents
+        .filter(document => !document.deletedAt)
+        .forEach(document => {
+            const parent =
+                nodeMap.get(document.folderId);
 
-        if(!parent || !child) return;
+            const child =
+                nodeMap.get(document.id);
 
-        const line = createConnection(parent,child);
+            if(!parent || !child) return;
 
-        linesGroup.appendChild(line);
-    });
-
-    state.documents.filter(document => !document.deletedAt).forEach(document => {
-        if(!Array.isArray(document.links)){
-            return;
-        }
-
-        document.links.forEach(linkId => {
-            const source = nodeMap.get(document.id);
-            const target = nodeMap.get(linkId);
-
-            if(!source || !target){
-                return;
-            }
-
-            const line = createConnection(source,target,true);
+            const line =
+                createConnection(parent,child);
 
             linesGroup.appendChild(line);
         });
-    });
+
+    state.documents
+        .filter(document => !document.deletedAt)
+        .forEach(document => {
+            if(!Array.isArray(document.links)){
+                return;
+            }
+
+            document.links.forEach(linkId => {
+                const source =
+                    nodeMap.get(document.id);
+
+                const target =
+                    nodeMap.get(linkId);
+
+                if(!source || !target){
+                    return;
+                }
+
+                const line =
+                    createConnection(
+                        source,
+                        target,
+                        true
+                    );
+
+                linesGroup.appendChild(line);
+            });
+        });
 
     viewport.appendChild(linesGroup);
 
@@ -223,34 +238,62 @@ export function renderMindMap(){
         );
 
         group.classList.add("mindmap-node");
-        group.classList.add(`mindmap-${node.type}`);
+        group.classList.add(
+            `mindmap-${node.type}`
+        );
 
         if(node.type === "document"){
-            group.dataset.documentId = node.id;
-            group.addEventListener("mouseenter",() => {
-                document.querySelectorAll(".mindmap-link").forEach(line => {
-                    const from = line.getAttribute("data-from");
-                    const to = line.getAttribute("data-to");
-                    if(from === node.id || to === node.id){
-                        line.classList.add("mindmap-link-active");
-                    }
-                });
-            });
+            group.dataset.documentId =
+                node.id;
 
-            group.addEventListener("mouseleave",() => {
-                document.querySelectorAll(".mindmap-link").forEach(line => {
-                    line.classList.remove("mindmap-link-active");
-                });
-            });
+            group.addEventListener(
+                "mouseenter",
+                () => {
+                    document
+                        .querySelectorAll(".mindmap-link")
+                        .forEach(line => {
+                            const from =
+                                line.getAttribute("data-from");
 
-            group.addEventListener("dblclick",event => {
-                event.preventDefault();
-                event.stopPropagation();
+                            const to =
+                                line.getAttribute("data-to");
 
-                window.location.assign(
-                    `editor.html?id=${encodeURIComponent(node.id)}`
-                );
-            });
+                            if(
+                                from === node.id ||
+                                to === node.id
+                            ){
+                                line.classList.add(
+                                    "mindmap-link-active"
+                                );
+                            }
+                        });
+                }
+            );
+
+            group.addEventListener(
+                "mouseleave",
+                () => {
+                    document
+                        .querySelectorAll(".mindmap-link")
+                        .forEach(line => {
+                            line.classList.remove(
+                                "mindmap-link-active"
+                            );
+                        });
+                }
+            );
+
+            group.addEventListener(
+                "dblclick",
+                event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    window.location.assign(
+                        `editor.html?id=${encodeURIComponent(node.id)}`
+                    );
+                }
+            );
         }
 
         viewport.appendChild(group);
@@ -258,7 +301,10 @@ export function renderMindMap(){
 
     svg.appendChild(viewport);
     container.appendChild(svg);
-    const legend = document.createElement("div");
+
+    const legend =
+        document.createElement("div");
+
     legend.className = "mindmap-legend";
 
     legend.innerHTML = `
@@ -266,6 +312,7 @@ export function renderMindMap(){
             <i class="mindmap-legend-line hierarchy"></i>
             Structure
         </span>
+
         <span>
             <i class="mindmap-legend-line relationship"></i>
             Knowledge Link
@@ -273,18 +320,24 @@ export function renderMindMap(){
     `;
 
     container.appendChild(legend);
-    fitMindMap(svg,viewport);
 
+    fitMindMap(svg,viewport);
     enableZoomAndPan(svg,viewport);
 }
 
-function createConnection(source,target,isLink = false){
-    const path = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "path"
-    );
+function createConnection(
+    source,
+    target,
+    isLink = false
+){
+    const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
 
-    const middleX = (source.x + target.x) / 2;
+    const middleX =
+        (source.x + target.x) / 2;
 
     const d = `
         M ${source.x} ${source.y}
@@ -294,50 +347,78 @@ function createConnection(source,target,isLink = false){
     `;
 
     path.setAttribute("d",d);
-
     path.classList.add("mindmap-line");
-    
+
     if(isLink){
         path.classList.add("mindmap-link");
 
-        path.setAttribute("data-from",source.id);
-        path.setAttribute("data-to",target.id);
+        path.setAttribute(
+            "data-from",
+            source.id
+        );
 
-        path.addEventListener("mouseenter",() => {
-            path.classList.add("mindmap-link-active");
+        path.setAttribute(
+            "data-to",
+            target.id
+        );
 
-            document.querySelectorAll(".mindmap-node").forEach(node => {
-                if(
-                    node.dataset.documentId === source.id ||
-                    node.dataset.documentId === target.id
-                ){
-                    node.classList.add("mindmap-node-active");
-                }
-            });
-        });
+        path.addEventListener(
+            "mouseenter",
+            () => {
+                path.classList.add(
+                    "mindmap-link-active"
+                );
 
-        path.addEventListener("mouseleave",() => {
-            path.classList.remove("mindmap-link-active");
+                document
+                    .querySelectorAll(".mindmap-node")
+                    .forEach(node => {
+                        if(
+                            node.dataset.documentId ===
+                                source.id ||
+                            node.dataset.documentId ===
+                                target.id
+                        ){
+                            node.classList.add(
+                                "mindmap-node-active"
+                            );
+                        }
+                    });
+            }
+        );
 
-            document.querySelectorAll(".mindmap-node").forEach(node => {
-                node.classList.remove("mindmap-node-active");
-            });
-        });
+        path.addEventListener(
+            "mouseleave",
+            () => {
+                path.classList.remove(
+                    "mindmap-link-active"
+                );
+
+                document
+                    .querySelectorAll(".mindmap-node")
+                    .forEach(node => {
+                        node.classList.remove(
+                            "mindmap-node-active"
+                        );
+                    });
+            }
+        );
     }
 
     return path;
 }
 
 function createWorkspaceCard(node){
-    const group = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-    );
+    const group =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "g"
+        );
 
-    const card = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-    );
+    const card =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+        );
 
     card.setAttribute("x","-90");
     card.setAttribute("y","-32");
@@ -347,45 +428,45 @@ function createWorkspaceCard(node){
 
     card.classList.add("mindmap-card");
 
-    const eyebrow = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
-    );
+   
 
-    eyebrow.textContent = "WORKSPACE";
-    eyebrow.setAttribute("text-anchor","middle");
-    eyebrow.setAttribute("y","-6");
-
-    eyebrow.classList.add("mindmap-eyebrow");
-
-    const title = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
-    );
+    const title =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
 
     title.textContent = node.label;
-    title.setAttribute("text-anchor","middle");
-    title.setAttribute("y","15");
+    title.setAttribute(
+        "text-anchor",
+        "middle"
+    );
+    title.setAttribute("x", "0");
+    title.setAttribute("y", "6");
 
-    title.classList.add("mindmap-title");
+    title.classList.add(
+        "mindmap-title"
+    );
 
     group.appendChild(card);
-    group.appendChild(eyebrow);
+
     group.appendChild(title);
 
     return group;
 }
 
 function createFolderCard(node){
-    const group = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-    );
+    const group =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "g"
+        );
 
-    const card = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-    );
+    const card =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+        );
 
     card.setAttribute("x","-75");
     card.setAttribute("y","-27");
@@ -393,18 +474,26 @@ function createFolderCard(node){
     card.setAttribute("height","54");
     card.setAttribute("rx","15");
 
-    card.classList.add("mindmap-card");
-
-    const title = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
+    card.classList.add(
+        "mindmap-card"
     );
 
+    const title =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
+
     title.textContent = node.label;
-    title.setAttribute("text-anchor","middle");
+    title.setAttribute(
+        "text-anchor",
+        "middle"
+    );
     title.setAttribute("y","5");
 
-    title.classList.add("mindmap-card-title");
+    title.classList.add(
+        "mindmap-card-title"
+    );
 
     group.appendChild(card);
     group.appendChild(title);
@@ -413,38 +502,48 @@ function createFolderCard(node){
 }
 
 function createDocumentCard(node){
-    const group = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "g"
-    );
+    const group =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "g"
+        );
 
-    const card = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "rect"
-    );
+    const card =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "rect"
+        );
 
-    card.setAttribute("x","-60");
-    card.setAttribute("y","-22");
-    card.setAttribute("width","120");
-    card.setAttribute("height","44");
+    card.setAttribute("x","-75");
+    card.setAttribute("y","-24");
+    card.setAttribute("width","150");
+    card.setAttribute("height","48");
     card.setAttribute("rx","12");
 
-    card.classList.add("mindmap-card");
-
-    const title = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
+    card.classList.add(
+        "mindmap-card"
     );
+
+    const title =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+        );
 
     title.textContent =
         node.label.length > 15
             ? `${node.label.substring(0,15)}…`
             : node.label;
 
-    title.setAttribute("text-anchor","middle");
+    title.setAttribute(
+        "text-anchor",
+        "middle"
+    );
     title.setAttribute("y","4");
 
-    title.classList.add("mindmap-card-title");
+    title.classList.add(
+        "mindmap-card-title"
+    );
 
     group.appendChild(card);
     group.appendChild(title);
@@ -452,54 +551,85 @@ function createDocumentCard(node){
     return group;
 }
 
-function enableZoomAndPan(svg,viewport){
+function enableZoomAndPan(
+    svg,
+    viewport
+){
     let isDragging = false;
     let startX = 0;
     let startY = 0;
 
-    svg.addEventListener("wheel",event => {
-        event.preventDefault();
+    svg.addEventListener(
+        "wheel",
+        event => {
+            event.preventDefault();
 
-        const direction = event.deltaY > 0 ? -1 : 1;
+            const direction =
+                event.deltaY > 0 ? -1 : 1;
 
-        scale += direction * 0.08;
+            scale += direction * 0.08;
 
-        scale = Math.max(
-            0.5,
-            Math.min(2.5,scale)
-        );
+            scale = Math.max(
+                0.5,
+                Math.min(2.5,scale)
+            );
 
-        updateViewport(viewport);
-    },{passive:false});
+            updateViewport(viewport);
+        },
+        {passive:false}
+    );
 
-    svg.addEventListener("mousedown",event => {
-        if(event.target.closest(".mindmap-node")){
-            return;
+    svg.addEventListener(
+        "mousedown",
+        event => {
+            if(
+                event.target.closest(
+                    ".mindmap-node"
+                )
+            ){
+                return;
+            }
+
+            isDragging = true;
+
+            startX =
+                event.clientX - offsetX;
+
+            startY =
+                event.clientY - offsetY;
+
+            svg.classList.add(
+                "dragging"
+            );
         }
+    );
 
-        isDragging = true;
+    window.addEventListener(
+        "mousemove",
+        event => {
+            if(!isDragging){
+                return;
+            }
 
-        startX = event.clientX - offsetX;
-        startY = event.clientY - offsetY;
+            offsetX =
+                event.clientX - startX;
 
-        svg.classList.add("dragging");
-    });
+            offsetY =
+                event.clientY - startY;
 
-    window.addEventListener("mousemove",event => {
-        if(!isDragging){
-            return;
+            updateViewport(viewport);
         }
+    );
 
-        offsetX = event.clientX - startX;
-        offsetY = event.clientY - startY;
-
-        updateViewport(viewport);
-    });
-
-    window.addEventListener("mouseup",() => {
-        isDragging = false;
-        svg.classList.remove("dragging");
-    });
+    window.addEventListener(
+        "mouseup",
+        () => {
+            isDragging = false;
+            svg.classList.remove(
+                "dragging"
+            );
+        }
+    );
 }
 
 function updateViewport(viewport){
@@ -509,10 +639,17 @@ function updateViewport(viewport){
     );
 }
 
-function fitMindMap(svg,viewport){
-    const bounds = viewport.getBBox();
+function fitMindMap(
+    svg,
+    viewport
+){
+    const bounds =
+        viewport.getBBox();
 
-    if(!bounds.width || !bounds.height){
+    if(
+        !bounds.width ||
+        !bounds.height
+    ){
         return;
     }
 
@@ -521,30 +658,43 @@ function fitMindMap(svg,viewport){
     const viewBoxHeight = 480;
 
     scale = Math.min(
-        (viewBoxWidth - padding * 2) / bounds.width,
-        (viewBoxHeight - padding * 2) / bounds.height,
+        (viewBoxWidth - padding * 2) /
+            bounds.width,
+        (viewBoxHeight - padding * 2) /
+            bounds.height,
         1
     );
 
     offsetX =
         viewBoxWidth / 2 -
-        (bounds.x + bounds.width / 2) * scale;
+        (bounds.x + bounds.width / 2) *
+            scale;
 
     offsetY =
         viewBoxHeight / 2 -
-        (bounds.y + bounds.height / 2) * scale;
+        (bounds.y + bounds.height / 2) *
+            scale;
 
     updateViewport(viewport);
 }
 
-window.addEventListener("knowledgeWorkspaceUpdate",() => {
-    renderMindMap();
-});
-
-window.addEventListener("storage",event => {
-    if(event.key !== "knowledgeWorkspaceUpdate"){
-        return;
+window.addEventListener(
+    "knowledgeWorkspaceUpdate",
+    () => {
+        renderMindMap();
     }
+);
 
-    renderMindMap();
-});
+window.addEventListener(
+    "storage",
+    event => {
+        if(
+            event.key !==
+            "knowledgeWorkspaceUpdate"
+        ){
+            return;
+        }
+
+        renderMindMap();
+    }
+);

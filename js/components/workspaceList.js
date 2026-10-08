@@ -24,7 +24,51 @@ import {
     showToast
 } from "../utils/toast.js";
 
+export function selectWorkspaceUI(workspaceId){
 
+    selectWorkspace(
+        workspaceId
+    );
+
+    state.currentFolderId = null;
+    state.currentDocumentId = null;
+
+    window.dispatchEvent(
+        new CustomEvent("folderSelectionChanged")
+    );
+
+    window.showingFavorites = false;
+    window.showingRecent = false;
+
+    const favoritesFilterBtn =
+        document.getElementById("favoritesFilterBtn");
+
+    const recentFilterBtn =
+        document.getElementById("recentFilterBtn");
+
+    if(favoritesFilterBtn){
+        favoritesFilterBtn.classList.remove("active");
+    }
+
+    if(recentFilterBtn){
+        recentFilterBtn.classList.remove("active");
+    }
+
+    const documentSearch =
+        document.getElementById("documentSearch");
+
+    if(documentSearch){
+        documentSearch.value = "";
+    }
+
+    renderWorkspaces(
+        state.workspaces
+    );
+
+    renderFolders(
+        state.currentWorkspaceId
+    );
+}
 export function renderWorkspaces(
     workspaces
 ) {
@@ -98,48 +142,7 @@ export function renderWorkspaces(
             workspaceElement.addEventListener(
                 "click",
                 () => {
-
-                    selectWorkspace(
-                        workspace.id
-                    );
-
-                    state.currentFolderId = null;
-                    state.currentDocumentId = null;
-                    window.dispatchEvent(
-                        new CustomEvent("folderSelectionChanged")
-                    );
-                    window.showingFavorites = false;
-                    window.showingRecent = false;
-
-                    const favoritesFilterBtn =
-                        document.getElementById("favoritesFilterBtn");
-
-                    const recentFilterBtn =
-                        document.getElementById("recentFilterBtn");
-
-                    if(favoritesFilterBtn){
-                        favoritesFilterBtn.classList.remove("active");
-                    }
-
-                    if(recentFilterBtn){
-                        recentFilterBtn.classList.remove("active");
-                    }
-
-                    const documentSearch =
-                        document.getElementById("documentSearch");
-
-                    if(documentSearch){
-                        documentSearch.value = "";
-                    }
-
-                    renderWorkspaces(
-                        state.workspaces
-                    );
-
-                    renderFolders(
-                        state.currentWorkspaceId
-                    );
-
+                    selectWorkspaceUI(workspace.id);
                 }
             );
 

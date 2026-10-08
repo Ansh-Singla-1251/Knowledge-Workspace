@@ -91,16 +91,22 @@ export function renderTrash(){
             card.querySelector(".delete-permanent-btn");
 
         restoreBtn.addEventListener("click",() => {
-            restoreDocument(deletedDocument.id);
+        const folderId = deletedDocument.folderId;
 
-            renderTrash();
+        restoreDocument(deletedDocument.id);
 
-            window.dispatchEvent(
-                new CustomEvent("knowledgeWorkspaceUpdate")
-            );
+        renderTrash();
 
-            showToast("Document restored.");
-        });
+        window.dispatchEvent(
+            new CustomEvent("knowledgeWorkspaceUpdate",{
+                detail:{
+                    folderId:folderId
+                }
+            })
+        );
+
+        showToast("Document restored.");
+    });
 
         deleteBtn.addEventListener("click",async () => {
             const confirmed = await requestConfirmation({
